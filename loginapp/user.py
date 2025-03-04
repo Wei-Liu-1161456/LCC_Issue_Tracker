@@ -202,6 +202,7 @@ def profile():
     if 'loggedin' not in session:
         return redirect(url_for('login'))
 
+    # Initialize empty errors dict
     errors = {}
 
     if request.method == 'POST':
@@ -218,40 +219,52 @@ def profile():
             if 'profile_image' in request.files:
                 file = request.files['profile_image']
                 if file and file.filename != '':
-                    filename = f"{session['username']}_image{os.path.splitext(file.filename)[1]}"
-                    filename = secure_filename(filename)
-                    file_path = os.path.join(UPLOAD_FOLDER, filename)
-                    file.save(file_path)
-                    form_data['profile_image'] = filename
+                    try:
+                        filename = f"{session['username']}_image{os.path.splitext(file.filename)[1]}"
+                        filename = secure_filename(filename)
+                        file_path = os.path.join(UPLOAD_FOLDER, filename)
+                        file.save(file_path)
+                        form_data['profile_image'] = filename
+                    except Exception as e:
+                        flash('Failed to upload profile image', 'danger')
+                        return redirect(url_for('profile'))
 
-            # Update user profile
-            with db.get_cursor() as cursor:
-                update_fields = ['email', 'first_name', 'last_name', 'location']
-                query_parts = [f"{field} = %s" for field in update_fields]
-                values = [form_data[field] for field in update_fields]
-                
-                if 'profile_image' in form_data:
-                    query_parts.append("profile_image = %s")
-                    values.append(form_data['profile_image'])
-                
-                values.append(session['user_id'])
-                
-                cursor.execute(
-                    f'UPDATE users SET {", ".join(query_parts)} WHERE user_id = %s',
-                    values
-                )
-                db.get_db().commit()
-                flash('Profile updated successfully!', 'success')
-                # Redirect to user's home page instead of profile
-                return redirect(user_home_url())
+            try:
+                with db.get_cursor() as cursor:
+                    # Update user data
+                    cursor.execute('''
+                        UPDATE users 
+                        SET email = %s, first_name = %s, last_name = %s, 
+                            location = %s
+                        WHERE user_id = %s
+                    ''', (form_data['email'], form_data['first_name'], 
+                          form_data['last_name'], form_data['location'], 
+                          session['user_id']))
+                    
+                    if 'profile_image' in form_data:
+                        cursor.execute('''
+                            UPDATE users 
+                            SET profile_image = %s 
+                            WHERE user_id = %s
+                        ''', (form_data['profile_image'], session['user_id']))
+                    
+                    db.get_db().commit()
+                    flash('Profile updated successfully', 'success')
+                    return redirect(url_for('profile'))
+            except Exception as e:
+                flash('Failed to update profile', 'danger')
+                return redirect(url_for('profile'))
+        else:
+            for field, error in errors.items():
+                flash(f'{error}', 'danger')
 
     # Get current user data
     with db.get_cursor() as cursor:
-        cursor.execute('SELECT * FROM users WHERE user_id = %s', (session['user_id'],))
+        cursor.execute('SELECT * FROM users WHERE user_id = %s', 
+                      (session['user_id'],))
         user = cursor.fetchone()
-    
-    # Clear any existing flash messages when just viewing the profile
-    session.pop('_flashes', None)
+
+    # Always pass errors dict to template, even if empty
     return render_template('profile.html', user=user, errors=errors)
 
 @app.route('/logout')
