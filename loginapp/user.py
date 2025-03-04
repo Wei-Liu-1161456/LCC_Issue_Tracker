@@ -215,20 +215,6 @@ def profile():
 
         # Validate form data...
         if not errors:
-            # Handle profile image upload if provided
-            if 'profile_image' in request.files:
-                file = request.files['profile_image']
-                if file and file.filename != '':
-                    try:
-                        filename = f"{session['username']}_image{os.path.splitext(file.filename)[1]}"
-                        filename = secure_filename(filename)
-                        file_path = os.path.join(UPLOAD_FOLDER, filename)
-                        file.save(file_path)
-                        form_data['profile_image'] = filename
-                    except Exception as e:
-                        flash('Failed to upload profile image', 'danger')
-                        return redirect(url_for('profile'))
-
             try:
                 with db.get_cursor() as cursor:
                     # Update user data
@@ -240,14 +226,49 @@ def profile():
                     ''', (form_data['email'], form_data['first_name'], 
                           form_data['last_name'], form_data['location'], 
                           session['user_id']))
-                    
-                    if 'profile_image' in form_data:
-                        cursor.execute('''
-                            UPDATE users 
-                            SET profile_image = %s 
-                            WHERE user_id = %s
-                        ''', (form_data['profile_image'], session['user_id']))
-                    
+
+                    # Handle profile image
+                    if 'profile_image' in request.files:
+                        file = request.files['profile_image']
+                        if file and file.filename != '':
+                            try:
+                                filename = f"{session['username']}_image{os.path.splitext(file.filename)[1]}"
+                                filename = secure_filename(filename)
+                                file_path = os.path.join(UPLOAD_FOLDER, filename)
+                                file.save(file_path)
+                                cursor.execute('''
+                                    UPDATE users 
+                                    SET profile_image = %s 
+                                    WHERE user_id = %s
+                                ''', (filename, session['user_id']))
+                                # Update session
+                                session['profile_image'] = filename
+                            except Exception as e:
+                                flash('Failed to upload profile image', 'danger')
+                                return redirect(url_for('profile'))
+
+                    # Handle profile image removal
+                    if request.form.get('remove_profile_image') == 'true':
+                        # Get current profile image
+                        cursor.execute('SELECT profile_image FROM users WHERE user_id = %s',
+                                    (session['user_id'],))
+                        result = cursor.fetchone()
+                        
+                        if result and result['profile_image']:
+                            # Delete file
+                            file_path = os.path.join(UPLOAD_FOLDER, result['profile_image'])
+                            if os.path.exists(file_path):
+                                os.remove(file_path)
+                            
+                            # Update database
+                            cursor.execute('''
+                                UPDATE users 
+                                SET profile_image = NULL 
+                                WHERE user_id = %s
+                            ''', (session['user_id'],))
+                            # Update session
+                            session['profile_image'] = None
+
                     db.get_db().commit()
                     flash('Profile updated successfully', 'success')
                     return redirect(url_for('profile'))

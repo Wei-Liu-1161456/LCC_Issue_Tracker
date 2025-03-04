@@ -29,6 +29,8 @@
                                     <i class="bi bi-trash"></i> Remove
                                 </button>
                                 {% endif %}
+                                <!-- Add a hidden input to track if image should be removed -->
+                                <input type="hidden" name="remove_profile_image" id="remove_profile_image" value="false">
                             </div>
                         </div>
 
@@ -138,33 +140,28 @@
 </div>
 
 <script>
-    // Update image preview only
+    // Update image preview only without saving
     document.getElementById('profile_image').addEventListener('change', function(e) {
         if (this.files && this.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.querySelector('img.rounded-circle').src = e.target.result;
+                // Only update the preview image in profile section
+                document.querySelector('.card-body img.rounded-circle').src = e.target.result;
             };
             reader.readAsDataURL(this.files[0]);
         }
     });
 
-    // Delete profile image
+    // Replace the deleteProfileImage function
     function deleteProfileImage() {
-        if (confirm('Are you sure you want to remove your profile image?')) {
-            fetch('{{ url_for("delete_profile_image") }}', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            }).then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.querySelector('img.rounded-circle').src = '{{ url_for("static", filename="uploads/profiles/300.jpeg") }}';
-                    location.reload();
-                }
-            });
-        }
+        // Just update the preview to default image
+        document.querySelector('.card-body img.rounded-circle').src = '{{ url_for("static", filename="uploads/profiles/300.jpeg") }}';
+        // Clear the file input
+        document.getElementById('profile_image').value = '';
+        // Hide the remove button
+        document.querySelector('.btn-outline-danger').style.display = 'none';
+        // Set the hidden input value to true to indicate image should be removed
+        document.getElementById('remove_profile_image').value = 'true';
     }
 
     // Password visibility toggle
