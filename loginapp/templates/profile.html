@@ -106,7 +106,12 @@
                     <div class="alert alert-danger" id="passwordError" style="display: none;"></div>
                     <div class="mb-3">
                         <label for="current_password" class="form-label">Current Password</label>
-                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggleCurrentPassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="new_password" class="form-label">New Password</label>
@@ -177,6 +182,7 @@
         });
     }
 
+    setupPasswordToggle('#current_password', '#toggleCurrentPassword');
     setupPasswordToggle('#new_password', '#toggleNewPassword');
     setupPasswordToggle('#confirm_password', '#toggleConfirmPassword');
 
