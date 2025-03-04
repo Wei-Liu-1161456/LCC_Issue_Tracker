@@ -1,6 +1,6 @@
 # This script runs automatically when our `loginapp` module is first loaded,
 # and handles all the setup for our Flask app.
-from flask import Flask
+from flask import Flask, url_for, session
 
 app = Flask(__name__)
 
@@ -22,6 +22,21 @@ from loginapp import connect
 from loginapp import db
 db.init_db(app, connect.dbuser, connect.dbpass, connect.dbhost, connect.dbname,
            connect.dbport)
+
+# Add template global function
+@app.template_global()
+def user_home_url():
+    """Return the appropriate home URL based on user role."""
+    if 'role' not in session:
+        return url_for('login')
+    
+    role = session['role']
+    if role == 'admin':
+        return url_for('admin_home')
+    elif role == 'helper':
+        return url_for('helper_home')
+    else:  # visitor
+        return url_for('visitor_home')
 
 # Include all modules that define our Flask route-handling functions.
 from loginapp import user

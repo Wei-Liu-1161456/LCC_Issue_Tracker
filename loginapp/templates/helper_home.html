@@ -1,72 +1,81 @@
 {% extends 'userbase.html' %}
 
-{% block title %}Helper Home{% endblock %}
+{% block title %}Helper Dashboard{% endblock %}
 
 {# Set the active page to be highlighted in the navigation bar. #}
 {% set active_page = 'home' %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card mb-4">
-                <div class="card-body text-center">
-                    <div class="mb-4">
-                        <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_image if user.profile_image else '300.jpeg')) }}" 
-                             class="rounded-circle" alt="Profile Image" 
-                             style="width: 120px; height: 120px; object-fit: cover;">
-                    </div>
-                    <h2 class="card-title">Welcome, {{ user.first_name }}!</h2>
-                    <p class="text-primary">Role: {{ user.role.title() }}</p>
-                </div>
-            </div> 
+<div class="container py-4">
+    <div class="row">
+        <div class="col">
+            <h2 class="mb-4">
+                <i class="bi bi-tools"></i> Helper Dashboard
+            </h2>
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card mb-4">
+                            <div class="card-body text-center">
+                                <div class="mb-4">
+                                    <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_image if user.profile_image else '300.jpeg')) }}" 
+                                         class="rounded-circle" alt="Profile Image" 
+                                         style="width: 120px; height: 120px; object-fit: cover;">
+                                </div>
+                                <h2 class="card-title">Welcome, {{ user.first_name }}!</h2>
+                                <p class="text-primary">Role: {{ user.role.title() }}</p>
+                            </div>
+                        </div> 
 
-            <!-- Quick Actions -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{{ url_for('list_issues') }}" class="btn btn-primary">
-                            <i class="bi bi-list-ul"></i> View Active Issues
-                        </a>
-                        <a href="{{ url_for('list_issues', filter='resolved') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-check-circle"></i> View Resolved Issues
-                        </a>
-                    </div>
-                </div>
-            </div>
+                        <!-- Quick Actions -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a href="{{ url_for('list_issues') }}" class="btn btn-primary">
+                                        <i class="bi bi-list-ul"></i> View Active Issues
+                                    </a>
+                                    <a href="{{ url_for('list_issues', filter='resolved') }}" class="btn btn-outline-primary">
+                                        <i class="bi bi-check-circle"></i> View Resolved Issues
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
 
-            <!-- Issue Statistics -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Issue Statistics</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6 col-md-3 mb-3">
-                            <div class="badge bg-primary p-2 w-100">
-                                {{ stats.new }}
-                                <div class="small">New</div>
+                        <!-- Issue Statistics -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Issue Statistics</h5>
                             </div>
-                        </div>
-                        <div class="col-6 col-md-3 mb-3">
-                            <div class="badge bg-success p-2 w-100">
-                                {{ stats.open }}
-                                <div class="small">Open</div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3 mb-3">
-                            <div class="badge bg-warning p-2 w-100">
-                                {{ stats.stalled }}
-                                <div class="small">Stalled</div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3 mb-3">
-                            <div class="badge bg-secondary p-2 w-100">
-                                {{ stats.resolved }}
-                                <div class="small">Resolved</div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <div class="badge bg-primary p-2 w-100">
+                                            {{ stats.new }}
+                                            <div class="small">New</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <div class="badge bg-success p-2 w-100">
+                                            {{ stats.open }}
+                                            <div class="small">Open</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <div class="badge bg-warning p-2 w-100">
+                                            {{ stats.stalled }}
+                                            <div class="small">Stalled</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <div class="badge bg-secondary p-2 w-100">
+                                            {{ stats.resolved }}
+                                            <div class="small">Resolved</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

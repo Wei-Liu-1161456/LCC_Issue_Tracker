@@ -1,33 +1,42 @@
 {% extends 'userbase.html' %}
 
-{% block title %}Visitor Home{% endblock %}
+{% block title %}Visitor Dashboard{% endblock %}
 
 {# Set the active page to be highlighted in the navigation bar. #}
 {% set active_page = 'home' %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-body text-center">
-                    <div class="mb-4">
-                        <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_image if user.profile_image else '300.jpeg')) }}" 
-                             class="rounded-circle" alt="Profile Image" 
-                             style="width: 120px; height: 120px; object-fit: cover;">
-                    </div>
-                    <h2 class="card-title">Welcome, {{ user.first_name }}!</h2>
-                    <p class="text-primary">Role: {{ user.role.title() }}</p>
-                    
-                    <div class="mt-4">
-                        <h3>Quick Actions</h3>
-                        <div class="d-grid gap-2 col-lg-6 mx-auto">
-                            <a href="{{ url_for('report_issue') }}" class="btn btn-primary">
-                                <i class="bi bi-plus-circle"></i> Report New Issue
-                            </a>
-                            <a href="{{ url_for('list_issues') }}" class="btn btn-outline-primary">
-                                <i class="bi bi-list-ul"></i> My Issues
-                            </a>
+<div class="container py-4">
+    <div class="row">
+        <div class="col">
+            <h2 class="mb-4">
+                <i class="bi bi-person"></i> Visitor Dashboard
+            </h2>
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <div class="mb-4">
+                                    <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_image if user.profile_image else '300.jpeg')) }}" 
+                                         class="rounded-circle" alt="Profile Image" 
+                                         style="width: 120px; height: 120px; object-fit: cover;">
+                                </div>
+                                <h2 class="card-title">Welcome, {{ user.first_name }}!</h2>
+                                <p class="text-primary">Role: {{ user.role.title() }}</p>
+                                
+                                <div class="mt-4">
+                                    <h3>Quick Actions</h3>
+                                    <div class="d-grid gap-2 col-lg-6 mx-auto">
+                                        <a href="{{ url_for('report_issue') }}" class="btn btn-primary">
+                                            <i class="bi bi-plus-circle"></i> Report New Issue
+                                        </a>
+                                        <a href="{{ url_for('list_issues') }}" class="btn btn-outline-primary">
+                                            <i class="bi bi-list-ul"></i> My Issues
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
