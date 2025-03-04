@@ -325,6 +325,13 @@ def change_password():
             'error': 'Current password is incorrect'
         })
 
+    # Check if new password is same as current password
+    if flask_bcrypt.check_password_hash(user['password_hash'], new_password):
+        return jsonify({
+            'success': False,
+            'error': 'New password cannot be the same as current password'
+        })
+
     if not re.match(PASSWORD_PATTERN, new_password):
         return jsonify({
             'success': False,
@@ -337,10 +344,10 @@ def change_password():
         cursor.execute('UPDATE users SET password_hash = %s WHERE user_id = %s',
                       (hashed_password, session['user_id']))
         db.get_db().commit()
+        flash('Password updated successfully', 'success')
 
     return jsonify({
-        'success': True,
-        'message': 'Password updated successfully!'
+        'success': True
     })
 
 @app.route('/upload_profile_image', methods=['POST'])

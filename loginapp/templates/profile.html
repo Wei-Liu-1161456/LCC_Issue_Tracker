@@ -217,21 +217,27 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Show success message
-                const successToast = document.getElementById('successToast');
-                successToast.querySelector('.toast-body').textContent = data.message;
-                const bsToast = new bootstrap.Toast(successToast);
-                bsToast.show();
-                
-                // Clear form and close modal
+                // Clear form and error message
                 document.getElementById('passwordForm').reset();
+                errorDiv.style.display = 'none';
+                
+                // Close modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
                 modal.hide();
+                
+                // Reload page to show flash message
+                location.reload();
             } else {
                 errorDiv.textContent = data.error;
                 errorDiv.style.display = 'block';
             }
         });
+    });
+
+    // Clear error message when modal is hidden
+    document.getElementById('changePasswordModal').addEventListener('hidden.bs.modal', function() {
+        document.getElementById('passwordError').style.display = 'none';
+        document.getElementById('passwordForm').reset();
     });
 </script>
 {% endblock %}
