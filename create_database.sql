@@ -3,7 +3,9 @@ DROP DATABASE IF EXISTS `LCC`;
 
 
 -- Create the database
-CREATE DATABASE LCC;
+CREATE DATABASE LCC
+    CHARACTER SET utf8mb4 
+    COLLATE utf8mb4_bin; -- use utf8mb4_bin for clarify upcase and lowercase.
 
 -- Use the datebase
 USE LCC;
