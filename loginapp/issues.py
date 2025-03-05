@@ -62,7 +62,14 @@ def list_issues():
             LEFT JOIN comments c ON i.issue_id = c.issue_id 
         '''
 
-        if session['role'] in ['helper', 'admin']:
+        if filter_type == 'my_issues':
+            # Show only user's own issues
+            cursor.execute(base_query + '''
+                WHERE i.user_id = %s
+                GROUP BY i.issue_id 
+                ORDER BY i.created_at DESC
+            ''', (session['user_id'],))
+        elif session['role'] in ['helper', 'admin']:
             if filter_type == 'resolved':
                 # Show only resolved issues
                 cursor.execute(base_query + '''
@@ -70,10 +77,6 @@ def list_issues():
                     GROUP BY i.issue_id 
                     ORDER BY i.created_at DESC
                 ''')
-                issues = cursor.fetchall()
-                return render_template('issues/list.html',
-                                    issues=issues,
-                                    filter_type=filter_type)
             else:
                 # Show active issues
                 cursor.execute(base_query + '''
@@ -87,31 +90,18 @@ def list_issues():
                         END,
                         i.created_at DESC
                 ''')
-                issues = cursor.fetchall()
-                return render_template('issues/list.html',
-                                    issues=issues,
-                                    filter_type=filter_type)
         else:
-            # For visitors: show ALL their own issues
+            # Visitor sees only their own issues by default
             cursor.execute(base_query + '''
                 WHERE i.user_id = %s
                 GROUP BY i.issue_id 
-                ORDER BY 
-                    CASE 
-                        WHEN i.status = 'resolved' THEN 2  -- Show resolved issues after active ones
-                        ELSE 1
-                    END,
-                    CASE i.status  -- Sort active issues by priority
-                        WHEN 'new' THEN 1
-                        WHEN 'open' THEN 2
-                        WHEN 'stalled' THEN 3
-                    END,
-                    i.created_at DESC
+                ORDER BY i.created_at DESC
             ''', (session['user_id'],))
-            issues = cursor.fetchall()
-            return render_template('issues/list.html',
-                                issues=issues,
-                                filter_type=filter_type)
+
+        issues = cursor.fetchall()
+        return render_template('issues/list.html',
+                            issues=issues,
+                            filter_type=filter_type)
 
 @app.route('/issues/<int:issue_id>')
 def view_issue(issue_id):

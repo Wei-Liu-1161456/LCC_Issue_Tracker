@@ -82,7 +82,7 @@ def manage_users():
             cursor.execute('SELECT * FROM users ORDER BY role, username')
         users = cursor.fetchall()
 
-    return render_template('admin/manage_users.html', users=users)
+    return render_template('admin/manage_users.html', users=users, active_page='manage_users')
 
 @app.route('/admin/users/<int:user_id>/role', methods=['POST'])
 def update_user_role(user_id):
@@ -140,15 +140,16 @@ def view_user(user_id):
     if session['role'] != 'admin':
         return render_template('access_denied.html'), 403
 
+    # If viewing own profile, redirect to profile page
+    if user_id == session['user_id']:
+        return redirect(url_for('profile'))
+
     with db.get_cursor() as cursor:
-        cursor.execute('''
-            SELECT * FROM users 
-            WHERE user_id = %s
-        ''', (user_id,))
+        cursor.execute('SELECT * FROM users WHERE user_id = %s', (user_id,))
         user = cursor.fetchone()
         
         if not user:
             flash('User not found', 'error')
             return redirect(url_for('manage_users'))
 
-    return render_template('admin/view_user.html', user=user)
+    return render_template('profile.html', user=user, is_admin_view=True)

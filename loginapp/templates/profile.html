@@ -1,24 +1,40 @@
 {% extends 'userbase.html' %}
 
-{% block title %}User Profile{% endblock %}
+{% block title %}
+    {% if is_admin_view %}View User Profile{% else %}My Profile{% endif %}
+{% endblock %}
 
-{# Set the active page to be highlighted in the navigation bar. #}
-{% set active_page = 'profile' %}
+{% set active_page = 'manage_users' if is_admin_view else 'profile' %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">{{ user.role.title() }} Profile</h4>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        {% if is_admin_view %}
+                            {{ user.role.title() }} Profile
+                        {% else %}
+                            My Profile
+                        {% endif %}
+                    </h4>
+                    {% if is_admin_view %}
+                    <a href="{{ url_for('manage_users') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                    {% endif %}
                 </div>
                 <div class="card-body">
+                    {% if not is_admin_view %}
                     <form method="post" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+                    {% endif %}
                         <!-- Profile Image Section -->
                         <div class="text-center mb-4">
                             <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_image if user.profile_image else '300.jpeg')) }}" 
-                                 class="rounded-circle mb-3" alt="Profile Image" style="width: 150px; height: 150px; object-fit: cover;">
+                                 class="rounded-circle mb-3" alt="Profile Image" 
+                                 style="width: 150px; height: 150px; object-fit: cover;">
+                            {% if not is_admin_view %}
                             <div>
                                 <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*" style="display: none;">
                                 <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('profile_image').click()">
@@ -29,9 +45,9 @@
                                     <i class="bi bi-trash"></i> Remove
                                 </button>
                                 {% endif %}
-                                <!-- Add a hidden input to track if image should be removed -->
                                 <input type="hidden" name="remove_profile_image" id="remove_profile_image" value="false">
                             </div>
+                            {% endif %}
                         </div>
 
                         <!-- Basic Information -->
@@ -43,7 +59,8 @@
                             <div class="col-md-6">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control{% if errors and errors.email %} is-invalid{% endif %}" 
-                                       id="email" name="email" value="{{ user.email }}" required>
+                                       id="email" name="email" value="{{ user.email }}" 
+                                       {% if is_admin_view %}disabled{% else %}required{% endif %}>
                                 {% if errors and errors.email %}
                                 <div class="invalid-feedback">{{ errors.email }}</div>
                                 {% endif %}
@@ -54,7 +71,8 @@
                             <div class="col-md-6">
                                 <label for="first_name" class="form-label">First Name</label>
                                 <input type="text" class="form-control{% if errors and errors.first_name %} is-invalid{% endif %}" 
-                                       id="first_name" name="first_name" value="{{ user.first_name }}" required maxlength="50">
+                                       id="first_name" name="first_name" value="{{ user.first_name }}"
+                                       {% if is_admin_view %}disabled{% else %}required maxlength="50"{% endif %}>
                                 {% if errors and errors.first_name %}
                                 <div class="invalid-feedback">{{ errors.first_name }}</div>
                                 {% endif %}
@@ -62,7 +80,8 @@
                             <div class="col-md-6">
                                 <label for="last_name" class="form-label">Last Name</label>
                                 <input type="text" class="form-control{% if errors and errors.last_name %} is-invalid{% endif %}" 
-                                       id="last_name" name="last_name" value="{{ user.last_name }}" required maxlength="50">
+                                       id="last_name" name="last_name" value="{{ user.last_name }}"
+                                       {% if is_admin_view %}disabled{% else %}required maxlength="50"{% endif %}>
                                 {% if errors and errors.last_name %}
                                 <div class="invalid-feedback">{{ errors.last_name }}</div>
                                 {% endif %}
@@ -72,12 +91,14 @@
                         <div class="mb-3">
                             <label for="location" class="form-label">Location</label>
                             <input type="text" class="form-control{% if errors and errors.location %} is-invalid{% endif %}" 
-                                   id="location" name="location" value="{{ user.location }}" required maxlength="50">
+                                   id="location" name="location" value="{{ user.location }}"
+                                   {% if is_admin_view %}disabled{% else %}required maxlength="50"{% endif %}>
                             {% if errors and errors.location %}
                             <div class="invalid-feedback">{{ errors.location }}</div>
                             {% endif %}
                         </div>
 
+                        {% if not is_admin_view %}
                         <div class="d-flex justify-content-between align-items-center">
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-save"></i> Save Changes
@@ -86,13 +107,16 @@
                                 <i class="bi bi-key"></i> Change Password
                             </button>
                         </div>
-                    </form>
+                        </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+{% if not is_admin_view %}
 <!-- Change Password Modal -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1">
     <div class="modal-dialog">
@@ -240,4 +264,6 @@
         document.getElementById('passwordForm').reset();
     });
 </script>
+{% endif %}
+
 {% endblock %}
