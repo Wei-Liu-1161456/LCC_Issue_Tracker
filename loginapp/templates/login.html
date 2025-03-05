@@ -31,7 +31,7 @@
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control{% if error %} is-invalid{% endif %}" 
                                    id="username" name="username" 
-                                   value="{{ session.registration_data.username if session.registration_data else (username if username) }}" 
+                                   value="{{ session.registration_data.username if session.registration_data else username }}" 
                                    required>
                         </div>
                         <div class="mb-3">
@@ -39,11 +39,14 @@
                             <div class="input-group">
                                 <input type="password" class="form-control{% if error %} is-invalid{% endif %}" 
                                        id="password" name="password" 
-                                       value="{{ session.registration_data.password if session.registration_data }}"
+                                       value="{{ session.registration_data.password if session.registration_data else '' }}"
                                        required>
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                     <i class="bi bi-eye"></i>
                                 </button>
+                                {% if error %}
+                                <div class="invalid-feedback">Invalid username or password</div>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="text-center">

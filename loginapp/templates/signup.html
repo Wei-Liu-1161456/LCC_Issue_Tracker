@@ -32,9 +32,7 @@
                             <label for="password" class="form-label">Password</label>
                             <div class="input-group">
                                 <input type="password" class="form-control{% if errors.password %} is-invalid{% endif %}" 
-                                       id="password" name="password" 
-                                       value="{{ password if password and errors }}" 
-                                       required>
+                                       id="password" name="password" required>
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                     <i class="bi bi-eye"></i>
                                 </button>
@@ -44,6 +42,19 @@
                             </div>
                             <div class="form-text">
                                 Password must be at least 8 characters and include uppercase, lowercase, and numbers.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control{% if errors.confirm_password %} is-invalid{% endif %}" 
+                                       id="confirm_password" name="confirm_password" required>
+                                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                {% if errors.confirm_password %}
+                                <div class="invalid-feedback">{{ errors.confirm_password }}</div>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="row">
@@ -82,16 +93,42 @@
     </div>
 </div>
 
-{# Add this before the closing body tag #}
 <script>
-    const togglePassword = document.querySelector('#togglePassword');
-    const password = document.querySelector('#password');
-    
-    togglePassword.addEventListener('click', function (e) {
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
-        this.querySelector('i').classList.toggle('bi-eye');
-        this.querySelector('i').classList.toggle('bi-eye-slash');
+    // Password visibility toggle function
+    function setupPasswordToggle(inputId, toggleId) {
+        const toggleBtn = document.querySelector(toggleId);
+        const passwordInput = document.querySelector(inputId);
+        
+        toggleBtn.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('bi-eye');
+            this.querySelector('i').classList.toggle('bi-eye-slash');
+        });
+    }
+
+    // Setup password toggles
+    setupPasswordToggle('#password', '#togglePassword');
+    setupPasswordToggle('#confirm_password', '#toggleConfirmPassword');
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            const confirmInput = document.getElementById('confirm_password');
+            confirmInput.classList.add('is-invalid');
+            confirmInput.setCustomValidity('Passwords do not match');
+            confirmInput.reportValidity();
+        }
+    });
+
+    // Clear custom validity on input
+    document.getElementById('confirm_password').addEventListener('input', function() {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
     });
 </script>
 {% endblock %}

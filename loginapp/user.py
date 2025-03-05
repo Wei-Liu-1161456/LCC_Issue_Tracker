@@ -107,34 +107,22 @@ def login():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    """Sign up endpoint.
-
-    Methods:
-    - get: Shows the sign up form.
-    - post: Processes the sign up form submission.
-    """
-    # Initialize empty errors dict
-    errors = {}
-    # Initialize form data variables
-    form_data = {
-        'username': '',
-        'email': '',
-        'first_name': '',
-        'last_name': '',
-        'location': ''
-    }
-
+    """Sign up page endpoint."""
     if request.method == 'POST':
         # Get form data
         form_data = {
-            'username': request.form['username'],
-            'email': request.form['email'],
-            'password': request.form['password'],
-            'first_name': request.form['first_name'],
-            'last_name': request.form['last_name'],
-            'location': request.form['location']
+            'username': request.form.get('username', '').strip(),
+            'password': request.form.get('password', ''),
+            'confirm_password': request.form.get('confirm_password', ''),
+            'email': request.form.get('email', '').strip(),
+            'first_name': request.form.get('first_name', '').strip(),
+            'last_name': request.form.get('last_name', '').strip(),
+            'location': request.form.get('location', '').strip()
         }
-
+        
+        # Validate input
+        errors = {}
+        
         # Validate username
         if not re.match(r'^[A-Za-z0-9_-]{3,20}$', form_data['username']):
             errors['username'] = 'Username must be 3-20 characters and contain only letters, numbers, underscores, and hyphens'
@@ -157,44 +145,57 @@ def signup():
         if not form_data['location'].strip():
             errors['location'] = 'Location is required'
 
-        # Check if username already exists
-        with db.get_cursor() as cursor:
-            # Check username
-            cursor.execute('SELECT * FROM users WHERE username = %s', (form_data['username'],))
-            if cursor.fetchone():
-                errors['username'] = 'Username already exists'
+        # Validate password match
+        if form_data['password'] != form_data['confirm_password']:
+            errors['confirm_password'] = 'Passwords do not match'
 
-            # Check email
-            cursor.execute('SELECT * FROM users WHERE email = %s', (form_data['email'],))
-            if cursor.fetchone():
-                errors['email'] = 'Email already registered'
+        if not errors:
+            try:
+                with db.get_cursor() as cursor:
+                    # Check if username already exists
+                    cursor.execute('SELECT * FROM users WHERE username = %s', 
+                                 (form_data['username'],))
+                    if cursor.fetchone():
+                        errors['username'] = 'Username already exists'
+                        return render_template('signup.html', errors=errors, **form_data)
 
-            # If no errors, create the account
-            if not errors:
-                # Hash the password
-                hashed_password = flask_bcrypt.generate_password_hash(form_data['password'])
-                
-                # Store new user in database
-                cursor.execute(
-                    'INSERT INTO users (username, password_hash, email, role, first_name, last_name, location, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                    (form_data['username'], hashed_password, form_data['email'], DEFAULT_USER_ROLE,
-                     form_data['first_name'], form_data['last_name'], form_data['location'], 'active')
-                )
-                db.get_db().commit()
+                    # Check if email already exists
+                    cursor.execute('SELECT * FROM users WHERE email = %s', 
+                                 (form_data['email'],))
+                    if cursor.fetchone():
+                        errors['email'] = 'Email already registered'
+                        return render_template('signup.html', errors=errors, **form_data)
 
-                # Store registration data in session for auto-fill login
-                session['registration_data'] = {
-                    'username': form_data['username'],
-                    'password': form_data['password'],
-                    'show_welcome': True
-                }
+                    # Hash password
+                    hashed_password = flask_bcrypt.generate_password_hash(form_data['password'])
+                    
+                    # Create new user
+                    cursor.execute('''
+                        INSERT INTO users (username, password_hash, email, first_name, 
+                                        last_name, location, role, status)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    ''', (form_data['username'], hashed_password, form_data['email'],
+                          form_data['first_name'], form_data['last_name'], 
+                          form_data['location'], 'visitor', 'active'))
+                    db.get_db().commit()
+                    
+                    # Store registration data in session for auto-fill login
+                    session['registration_data'] = {
+                        'username': form_data['username'],
+                        'password': form_data['password'],
+                        'show_welcome': True
+                    }
+                    
+                    flash('Account created successfully! Please log in with your credentials.', 'success')
+                    return redirect(url_for('login'))
+            except Exception as e:
+                flash('Failed to create account', 'danger')
+                return render_template('signup.html', errors=errors, **form_data)
+        
+        return render_template('signup.html', errors=errors, **form_data)
 
-                # Use success category for success messages
-                flash('Account created successfully! Please log in with your credentials.', 'success')
-                return redirect(url_for('login'))
-
-    # GET request or form validation failed - show form
-    return render_template('signup.html', errors=errors, **form_data)
+    # GET request - show empty form
+    return render_template('signup.html', errors={})
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
