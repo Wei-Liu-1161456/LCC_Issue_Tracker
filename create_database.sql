@@ -2,16 +2,19 @@
 DROP DATABASE IF EXISTS `LCC`;
 
 
--- Create the database
-CREATE DATABASE LCC
+-- Create the database if it doesn't exist
+CREATE DATABASE LCC IF NOT EXISTS LCC
     CHARACTER SET utf8mb4 
     COLLATE utf8mb4_bin; -- use utf8mb4_bin for clarify upcase and lowercase.
 
 -- Use the datebase
 USE LCC;
 
--- Drop table if it exists before creating a new one
+-- Drop table if it exists before creating
 DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `issues`;
+DROP TABLE IF EXISTS `comments`;
+
 CREATE TABLE `users`(
     `user_id` INT NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(20) NOT NULL,
@@ -27,8 +30,7 @@ CREATE TABLE `users`(
     UNIQUE KEY `username` (`username`)
 );
 
--- Drop table if it exists before creating a new one
-DROP TABLE IF EXISTS `issues`;
+
 CREATE TABLE `issues` (
     `issue_id` INT NOT NULL AUTO_INCREMENT,
     `user_id` INT NOT NULL,
@@ -40,8 +42,7 @@ CREATE TABLE `issues` (
     FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 );
 
--- Drop table if it exits before creating a new one
-DROP TABLE IF EXISTS `comments`;
+
 CREATE TABLE `comments` (
   `comment_id` INT NOT NULL AUTO_INCREMENT,
   `issue_id` INT NOT NULL,

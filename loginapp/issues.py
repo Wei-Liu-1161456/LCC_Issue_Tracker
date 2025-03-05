@@ -1,8 +1,8 @@
 from loginapp import app
 from loginapp import db
 from flask import redirect, render_template, request, session, url_for, flash
-import MySQLdb.cursors
-from datetime import datetime
+# import MySQLdb.cursors
+# from datetime import datetime
 
 @app.route('/issues/report', methods=['GET', 'POST'])
 def report_issue():
