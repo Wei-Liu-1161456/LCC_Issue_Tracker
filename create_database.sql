@@ -3,7 +3,7 @@ DROP DATABASE IF EXISTS `LCC`;
 
 
 -- Create the database if it doesn't exist
-CREATE DATABASE LCC IF NOT EXISTS LCC
+CREATE DATABASE IF NOT EXISTS `LCC`
     CHARACTER SET utf8mb4 
     COLLATE utf8mb4_bin; -- use utf8mb4_bin for clarify upcase and lowercase.
 

@@ -23,24 +23,10 @@ from loginapp import db
 db.init_db(app, connect.dbuser, connect.dbpass, connect.dbhost, connect.dbname,
            connect.dbport)
 
-# Add template global function
-@app.template_global()
-def user_home_url():
-    """Return the appropriate home URL based on user role."""
-    if 'role' not in session:
-        return url_for('login')
-    
-    role = session['role']
-    if role == 'admin':
-        return url_for('admin_home')
-    elif role == 'helper':
-        return url_for('helper_home')
-    else:  # visitor
-        return url_for('visitor_home')
-
 # Include all modules that define our Flask route-handling functions.
 from loginapp import user
 from loginapp import visitor
 from loginapp import helper
 from loginapp import admin
 from loginapp import issues
+from loginapp import utils

@@ -162,4 +162,5 @@ cython_debug/
 .DS_Store
 
 loginapp/static/uploads/profiles/*image*.*
+CHANGELOG.md
 

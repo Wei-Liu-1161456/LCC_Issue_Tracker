@@ -1,169 +1,135 @@
-# Login Example v2.0.3 (24 February 2025)
+# LCC Issue Tracker Project Setup & Usage Guide
 
-This sample app demonstrates a simple login system that allows users to
-register, log in, and view pages specific to their user role. Those pages don't
-really do anything: it's just a simplified example to share some basic tools
-and techniques you might need when building a real-world login system.
+A web-based issue tracking system for Lincoln Commutity Campground (LCC), built with Flask、MySQL and Responsive design using Bootstrap 5.
 
-There are three user roles in this system:
-- **Customer**
-- **Staff**
-- **Admin**
+---
+# How to Set Up LCC Issue Tracker Project
+## Prerequisites
 
-Anyone who registers via the app will be a **Customer**. The only way to create
-**Staff** or **Admin** accounts in this simple app is to insert them directly
-into the database. Hey, we didn't say this app was complete!
+- Python 3.12+
+- MySQL 8.0+
+- pip (Python package installer)
 
-## Getting this Example Running
+## Installation
 
-To run the example yourself, you'll need to:
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/LCC-Issue-Tracker.git
+cd LCC-Issue-Tracker/loginapp
+```
 
-1. Open the project in Visual Studio Code.
-2. Create yourself a virtual environment.
-3. Install all of the packages listed in requirements.txt (Visual Studio will
-   offer to do this for you during step 2).
-4. Use the [Database Creation Script](create_database.sql) to create your own
-   copy of the **loginexample** database.
-5. Use the [Database Population Script](populate_database.sql) to populate
-   the **loginexample** ***users*** table with example users.
-6. Modify [connect.py](loginapp/connect.py) with the connection details for
-   your local database server.
-7. Run [The Python/Flask application](run.py).
+2. Create and activate a virtual environment:
+```bash
+bash
+python -m venv .venv
+source .venv/bin/activate # On Windows: .venv\Scripts\activate
+```
 
-At that point, you should be able to register yourself a new **customer**
-account or log in using one of the **customer**, **staff**, or **admin**
-accounts listed in the [Database Population Script](populate_database.sql).
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-Enjoy!
+4. Set up the MySQL database:
+```bash
+mysql -u root -p < create_database.sql # Create the Database Schema 
+mysql -u root -p < seed.sql # Populate the Database
+```
 
-## Database Scripts
+5. Run the application:
+```bash
+python3 run.py
+```
 
-While we're talking about the database, you should take a look at:
-- [MySQL script to create the necessary database](create_database.sql)
-- [MySQL script to populate the database with users](populate_database.sql)
-- [Python script to create password hashes](password_hash_generator.py)
+---
+# How to use LCC Issue Tracker Website
 
-What's that third one? Well, for that we need to talk about...
+## Login
+Use the login page to log in, there are given data(Username and Password) in password_hash_generator.py to login, such as:
+```sql
+Format: UserAccount(username, password, role)
+    
+# Administrators (2)
+UserAccount('admin1', 'Admin1Pass!', 'admin'),
+UserAccount('admin2', 'Admin2Pass!', 'admin')
 
-## Passwords
+# Helpers (5)
+UserAccount('helper1', 'Helper1Pass!', 'helper'),
+UserAccount('helper2', 'Helper2Pass!', 'helper'),
+UserAccount('helper3', 'Helper3Pass!', 'helper'),
+UserAccount('helper4', 'Helper4Pass!', 'helper'),
+UserAccount('helper5', 'Helper5Pass!', 'helper'),
 
-One of the key things about this login system is that it doesn't actually store
-users' passwords in the database. That may lead you to ask...
+ # Visitors (20)
+UserAccount('visitor1', 'Visitor1Pass!', 'visitor'),
+UserAccount('visitor2', 'Visitor2Pass!', 'visitor'),
+UserAccount('visitor3', 'Visitor3Pass!', 'visitor'),
+UserAccount('visitor4', 'Visitor4Pass!', 'visitor'),
+UserAccount('visitor5', 'Visitor5Pass!', 'visitor'),
+UserAccount('visitor6', 'Visitor6Pass!', 'visitor'),
+UserAccount('visitor7', 'Visitor7Pass!', 'visitor'),
+UserAccount('visitor8', 'Visitor8Pass!', 'visitor'),
+UserAccount('visitor9', 'Visitor9Pass!', 'visitor'),
+UserAccount('visitor10', 'Visitor10Pass!', 'visitor'),
+UserAccount('visitor11', 'Visitor11Pass!', 'visitor'),
+UserAccount('visitor12', 'Visitor12Pass!', 'visitor'),
+UserAccount('visitor13', 'Visitor13Pass!', 'visitor'),
+UserAccount('visitor14', 'Visitor14Pass!', 'visitor'),
+UserAccount('visitor15', 'Visitor15Pass!', 'visitor'),
+UserAccount('visitor16', 'Visitor16Pass!', 'visitor'),
+UserAccount('visitor17', 'Visitor17Pass!', 'visitor'),
+UserAccount('visitor18', 'Visitor18Pass!', 'visitor'),
+UserAccount('visitor19', 'Visitor19Pass!', 'visitor'),
+UserAccount('visitor20', 'Visitor20Pass!', 'visitor'),
+```
 
-### Why not store passwords?
-People tend to re-use passwords across multiple websites, no matter how much
-security experts might tell them not to. That means if someone gets access to
-your database, containing a whole lot of users' passwords and other details
-like names or email addresses, they can use those passwords to compromise
-your users' accounts with other services (like their email, or bank account).
+## Sign up
+Click the Sign up button on the Login page to create your own account, your account will be a visitor for this issue tracker system.
 
-### How do you handle registration and login without storing passwords?
+## Navigation Bar - Home button
 
-Easy! Well, sort of. It goes like this:
+click the Home button to show the user Dashboard 
 
-1. When the user first gives us a password during registration, we pass it
-   through a cryptographic "hash" function: a one-way mathematical operation
-   that transforms the original password into its corresponding "hash value"
-   or "hash". The same password always results in the same hash.
-   
-2. We throw away the original password, and just keep the hash.
-   
-3. The hash value is useless to an attacker: because the hash-function is
-   one-way, anyone who steals our database of user accounts can't work out
-   what the users' passwords are. Well, okay, there are clever ways around
-   that. Look up "rainbow tables" if you're interested. Read Cory Doctorow's
-   "Knights of the Rainbow Table" if you're *really* interested. But it takes
-   a whole lot more time and computing power for an attacker to get a user's
-   password back from its hash than it does to just read the plain password
-   straight out of your database.
+**Admin user dashboard**
+1 - "View Active Issues" button
+Click it to view the list of those issues that aren't resolved yet.
+2 - "View Resolved Issues" button
+Click it to view the list of those issues that have been resolved.
+3 - "Manage Users" button
+Click it to view the list of those issues that have been resolved. and then you can search users by username/fname/lname, can change the role(admin/helper/visitor) and the status(inactive and active) of the usrs, can view the users profile.
+4 - "Report New Issue"
+Click it to create a new issue.
 
-4. When a user tries to log in, we take the password they supplied us, run it
-   through the exact same hash function, and then compare the hash to the one
-   we have on file. Because the same password will always produce the same
-   hash, if the two hashes match then the passwords must match! Again, kinda.
-   It's possible, though very unlikely, that two passwords may produce the
-   same hash value. In that case, you'd be able to log in using either
-   password. These kinds of "hash collisions" are extremely rare, though. Rare
-   enough that we won't worry about that here.
+**2. Helper user dashboard**
+1 - "View Active Issues" button
+Click it to view the list of those issues that aren't resolved yet.
+2 - "View Resolved Issues" button
+Click it to view the list of those issues that have been resolved.
+3 - "Report New Issue"
+Click it to create a new issue.
 
-So, in short:
-1. The user gives us a password.
-2. We put that password though a one-way hashing algorithm to get its "hash".
-3. We store the hash, **not** the password.
-4. During login, we put the supplied password through the same algorithm.
-5. If the hash of the supplied password matches the hash of the user's original
-   password that we stored in step 3, then we know the user has supplied the
-   correct password... without having to know their password at all.
+**3. Visitor user dashboard**
 
-Cool, huh?
 
-### Salting Passwords
 
-Remember how we mentioned that it's technically possible for an attacker to
-work out a user's original password from its hash, just expensive? Well, it's
-actually not expensive at all if you just pre-calculate one of those "rainbow
-tables": essentially a giant table mapping hash values back to passwords. It
-takes time to generate something like that, and the tables are absolutely huge,
-but storage is pretty cheap these days and you only have to generate the table
-once per hash algorithm. Once someone has a rainbow table for a particular
-algorithm, translating hashes back to passwords is just a simple lookup.
+## Navigation Bar - Issues button
 
-The contemporary solution to this is to add a "salt" to each password before
-you hash it. The salt is just some random string. It doesn't have to be secret,
-necessarily, just specific to your app (which we used to do in older versions
-of this example project) or, ideally, specific to each password (which we do in
-this current version). Adding a salt to your passwords totally breaks the whole
-"rainbow table" approach: an attacker can't just use an off-the-shelf table
-any more. With our old approach, one salt for the whole app, an attacker needs
-to generate a rainbow table specific to *our application's salt*. When you're
-using per-password salts, like we are here, an attacker would have to generate
-one of those giant tables to break *each individual password* in our database.
+**1.Admin user**
 
-Quantum computing will probably break all this, in the not-too-distant future,
-but for now this approach provides a reasonable means of protecting users'
-passwords from disclosure if an attacker gains access to our database.
+**2.Helper user**
+**3.visitor user**
 
-### How exactly do we do all this?
+## Navigation Bar - Manage Users button
 
-With the [Flask-Bcrypt library](https://flask-bcrypt.readthedocs.io/en/1.0.1/)
-(which is really just a Flask-specific wrapper for the bcrypt library) and a
-couple lines of code.
+**Only Visible to Admin User:**
+Click it to view the list of those issues that have been resolved. and then you can search users by username/fname/lname, can change the role(admin/helper/visitor) and the status(inactive and active) of the usrs, can view the users profile.
 
-If you take a look at the [database creation script](create_database.sql),
-you'll see that instead of a "password" field to store the password, we have a
-"password_hash" field that stores a binary string of 60 characters.
+## Navigation Bar - User Avatar and First Name
 
-Flask-Bcrypt uses the [bcrypt algorithm](https://en.wikipedia.org/wiki/Bcrypt)
-(as you may have guessed from the name). Bcrypt password hashes bundle together
-a bcrypt version number, the password hash itself, and the salt value used to
-generate it. Together, depending on which version of the algorithm you're
-using, this is a string of either 59 or 60 bytes (always 60 bytes in the
-current version).
+**Used for ALL Roles (Admin/Helper/Visitor):**
+Click this button to show yours Profile details, and you can change your details and password in the "My profile" page.
 
-The string of bytes making up a bcrypt hash are all in the "printable
-character" range, so can be displayed a text string. In a MySQL database you
-could either store them as a `BINARY(60)` or `CHAR(60) BINARY` column: we use
-the latter format in this example because it makes it easier for us to see and
-edit the hashes in MySQL Workbench. Technically, because of the way our app
-is written, we could use plain old `CHAR(60)`. However, we explicitly use
-`CHAR(60) BINARY` because this tells MySQL to treat our string as binary data:
-where, for example, "ABC" is meaningfully different to "ABc" or "aBC".
+## Navigation Bar - Log out
 
-If this sounds terrifyingly complicated, don't worry. Take a look at the
-[Hash generator Python script](password_hash_generator.py) for an example of
-how to create the hashes (literally one line of code) and check a password
-against a hash (again, one line of code).
-
-If we were using the bcrypt library directly, or another option such as
-[Flask-Hashing](https://flask-hashing.readthedocs.io/en/latest/) (used in older
-versions of this example) then we'd need to handle the "salting" process
-ourselves. However, the Flask-Bcrypt library does this for us. We only have to
-call the `generate_password_hash(password)` function to generate a hash for a
-new `password` (e.g. when a user signs up or changes their password). That
-function generates a new salt value then uses it to hash the password in a
-single step.
-
-Once we've generated a password hash and stored it in our database, we can then
-call the `check_password_hash(pw_hash, password)` function to check a whether a
-`password` supplied during login matches the `pw_hash` stored in our database
-for that particular user account.
+**Used for ALL Roles (Admin/Helper/Visitor):**
+Click this button to log out your account from the LCC Issue Tracker system.

@@ -79,5 +79,3 @@ INSERT INTO `comments` (`issue_id`, `user_id`, `content`, `created_at`) VALUES
 (15, 22, 'Dump station has been unclogged and is operational again.', '2024-02-15 12:45:00'),
 (16, 23, 'Light bulbs have been replaced in the pavilion.', '2024-02-17 09:20:00'),
 (20, 25, 'I''ll repaint the trail markers this weekend if the weather permits.', '2024-02-20 15:15:00');
-
--- End of script
