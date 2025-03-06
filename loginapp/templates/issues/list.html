@@ -30,7 +30,7 @@
                 <div class="card-body">
                     {% if issues or active_issues %}
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>Status</th>
@@ -52,34 +52,14 @@
                                                 'open': 'success',
                                                 'stalled': 'warning',
                                                 'resolved': 'secondary'
-                                            }[issue.status] }}" type="button" data-bs-toggle="dropdown">
+                                            }[issue.status] }}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                 {{ issue.status }}
                                             </button>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <form method="post" action="{{ url_for('update_issue_status', issue_id=issue.issue_id) }}">
-                                                        <input type="hidden" name="status" value="new">
-                                                        <button type="submit" class="dropdown-item">Set as New</button>
-                                                    </form>
-                                                </li>
-                                                <li>
-                                                    <form method="post" action="{{ url_for('update_issue_status', issue_id=issue.issue_id) }}">
-                                                        <input type="hidden" name="status" value="open">
-                                                        <button type="submit" class="dropdown-item">Set as Open</button>
-                                                    </form>
-                                                </li>
-                                                <li>
-                                                    <form method="post" action="{{ url_for('update_issue_status', issue_id=issue.issue_id) }}">
-                                                        <input type="hidden" name="status" value="stalled">
-                                                        <button type="submit" class="dropdown-item">Set as Stalled</button>
-                                                    </form>
-                                                </li>
-                                                <li>
-                                                    <form method="post" action="{{ url_for('update_issue_status', issue_id=issue.issue_id) }}">
-                                                        <input type="hidden" name="status" value="resolved">
-                                                        <button type="submit" class="dropdown-item">Set as Resolved</button>
-                                                    </form>
-                                                </li>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><button class="dropdown-item" type="submit" name="status" value="new">new</button></li>
+                                                <li><button class="dropdown-item" type="submit" name="status" value="open">open</button></li>
+                                                <li><button class="dropdown-item" type="submit" name="status" value="stalled">stalled</button></li>
+                                                <li><button class="dropdown-item" type="submit" name="status" value="resolved">resolved</button></li>
                                             </ul>
                                         </div>
                                         {% else %}

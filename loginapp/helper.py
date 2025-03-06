@@ -1,22 +1,25 @@
+"""
+Helper module.
+
+This module handles helper-specific functionality including the helper dashboard.
+"""
+
 from loginapp import app
 from loginapp import db
 from flask import redirect, render_template, session, url_for
+from loginapp.decorators import helper_required
 
 @app.route('/helper/home')
+@helper_required
 def helper_home():
-    """Helper Homepage endpoint.
-
-    Methods:
-    - get: Renders the homepage for the current helper, or an "Access
-         Denied" 403: Forbidden page if the current user has a different role.
-
-    If the user is not logged in, requests will redirect to the login page.
     """
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
-    elif session['role'] != 'helper':
-        return render_template('access_denied.html'), 403
-
+    Helper Homepage endpoint.
+    
+    Displays the helper dashboard with issue statistics.
+    
+    Returns:
+        Rendered helper home template with user data and statistics
+    """
     with db.get_cursor() as cursor:
         # Get current user data
         cursor.execute('SELECT * FROM users WHERE user_id = %s', (session['user_id'],))

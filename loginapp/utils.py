@@ -1,13 +1,22 @@
-"""Utility functions for the LCC Issue Tracker application."""
+"""
+Utility functions module.
+
+This module provides utility functions used throughout the application.
+"""
 
 import os
 from werkzeug.utils import secure_filename
-from loginapp import app, db
+from loginapp import app
 from flask import session, url_for
-# Add template global function
+
 @app.template_global()
 def user_home_url():
-    """Return the appropriate home URL based on user role."""
+    """
+    Return the appropriate home URL based on user role.
+    
+    Returns:
+        str: URL for the user's home page based on their role
+    """
     if 'role' not in session:
         return url_for('login')
     
@@ -20,7 +29,8 @@ def user_home_url():
         return url_for('visitor_home')
 
 def save_profile_image(file, username):
-    """Save a profile image to the uploads directory.
+    """
+    Save a profile image to the uploads directory.
     
     Args:
         file: The uploaded file object
@@ -28,9 +38,6 @@ def save_profile_image(file, username):
         
     Returns:
         str: The filename of the saved image
-        
-    Raises:
-        IOError: If the file cannot be saved
     """
     filename = f"{username}_image{os.path.splitext(file.filename)[1]}"
     filename = secure_filename(filename)
@@ -45,7 +52,8 @@ def save_profile_image(file, username):
     return filename
 
 def delete_profile_image(filename):
-    """Delete a profile image from the uploads directory.
+    """
+    Delete a profile image from the uploads directory.
     
     Args:
         filename: The filename of the image to delete

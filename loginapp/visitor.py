@@ -1,25 +1,32 @@
+"""
+Visitor module.
+
+This module handles visitor-specific functionality including the visitor dashboard.
+"""
+
 from loginapp import app
 from loginapp import db
 from flask import redirect, render_template, session, url_for
+from loginapp.decorators import login_required
 
 @app.route('/visitor/home')
+@login_required
 def visitor_home():
-    """Visitor Homepage endpoint.
-
-    Methods:
-    - get: Renders the homepage for the current visitor, or an "Access
-         Denied" 403: Forbidden page if the current user has a different role.
-
-    If the user is not logged in, requests will redirect to the login page.
     """
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
-    elif session['role'] != 'visitor':
+    Visitor Homepage endpoint.
+    
+    Displays the visitor dashboard.
+    
+    Returns:
+        Rendered visitor home template with user data
+    """
+    # 检查用户是否已登录
+    if session['role'] != 'visitor':
         return render_template('access_denied.html'), 403
-
-    # Get current user data
+        
     with db.get_cursor() as cursor:
+        # Get current user data
         cursor.execute('SELECT * FROM users WHERE user_id = %s', (session['user_id'],))
         user = cursor.fetchone()
-
+        
     return render_template('visitor_home.html', user=user) 

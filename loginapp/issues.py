@@ -1,15 +1,31 @@
+"""
+Issues management module.
+
+This module handles all issue-related functionality including reporting,
+listing, viewing, commenting, and status updates.
+"""
+
 from loginapp import app
 from loginapp import db
 from flask import redirect, render_template, request, session, url_for, flash
+from loginapp.decorators import login_required, helper_required
 # import MySQLdb.cursors
 # from datetime import datetime
 
 @app.route('/issues/report', methods=['GET', 'POST'])
+@login_required
 def report_issue():
-    """Report new issue endpoint."""
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
-
+    """
+    Report new issue endpoint.
+    
+    GET: Displays the issue reporting form
+    POST: Processes the submitted form data and creates a new issue
+    
+    Returns:
+        On GET: Rendered report form template
+        On POST success: Redirect to issues list
+        On POST error: Rendered report form with validation errors
+    """
     if request.method == 'POST':
         # Get form data
         form_data = {
@@ -45,11 +61,16 @@ def report_issue():
                          form_data={})
 
 @app.route('/issues/list')
+@login_required
 def list_issues():
-    """View issues list endpoint."""
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
-
+    """
+    View issues list endpoint.
+    
+    Displays a list of issues based on user role and filter parameters.
+    
+    Returns:
+        Rendered template with filtered issues list
+    """
     # Get filter parameter
     filter_type = request.args.get('filter')
 
@@ -66,6 +87,20 @@ def list_issues():
             # Show only user's own issues
             cursor.execute(base_query + '''
                 WHERE i.user_id = %s
+                GROUP BY i.issue_id 
+                ORDER BY i.created_at DESC
+            ''', (session['user_id'],))
+        elif filter_type == 'my_active':
+            # Show only user's active issues
+            cursor.execute(base_query + '''
+                WHERE i.user_id = %s AND i.status != 'resolved'
+                GROUP BY i.issue_id 
+                ORDER BY i.created_at DESC
+            ''', (session['user_id'],))
+        elif filter_type == 'my_resolved':
+            # Show only user's resolved issues
+            cursor.execute(base_query + '''
+                WHERE i.user_id = %s AND i.status = 'resolved'
                 GROUP BY i.issue_id 
                 ORDER BY i.created_at DESC
             ''', (session['user_id'],))
@@ -104,11 +139,21 @@ def list_issues():
                             filter_type=filter_type)
 
 @app.route('/issues/<int:issue_id>')
+@login_required
 def view_issue(issue_id):
-    """View issue details endpoint."""
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
-
+    """
+    View issue details endpoint.
+    
+    Displays detailed information about a specific issue and its comments.
+    
+    Args:
+        issue_id: The ID of the issue to view
+        
+    Returns:
+        Rendered template with issue details and comments
+        Redirect to issues list if issue not found
+        Access denied page if user lacks permission
+    """
     with db.get_cursor() as cursor:
         # Get issue details with reporter info
         cursor.execute('''
@@ -140,11 +185,20 @@ def view_issue(issue_id):
     return render_template('issues/detail.html', issue=issue, comments=comments)
 
 @app.route('/issues/<int:issue_id>/comment', methods=['POST'])
+@login_required
 def add_comment(issue_id):
-    """Add comment to issue endpoint."""
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
-
+    """
+    Add comment to issue endpoint.
+    
+    Processes a new comment submission for an issue.
+    
+    Args:
+        issue_id: The ID of the issue to comment on
+        
+    Returns:
+        Redirect to issue details page
+        Access denied page if user lacks permission
+    """
     content = request.form.get('content', '').strip()
     if not content:
         flash('Comment cannot be empty', 'error')
@@ -183,14 +237,20 @@ def add_comment(issue_id):
     return redirect(url_for('view_issue', issue_id=issue_id))
 
 @app.route('/issues/<int:issue_id>/status', methods=['POST'])
+@login_required
+@helper_required
 def update_issue_status(issue_id):
-    """Update issue status endpoint."""
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
+    """
+    Update issue status endpoint.
+    
+    Changes the status of an issue (helper/admin only).
+    
+    Args:
+        issue_id: The ID of the issue to update
         
-    if session['role'] not in ['helper', 'admin']:
-        return render_template('access_denied.html'), 403
-        
+    Returns:
+        Redirect to issues list
+    """
     new_status = request.form.get('status')
     if new_status not in ['new', 'open', 'stalled', 'resolved']:
         flash('Invalid status', 'error')

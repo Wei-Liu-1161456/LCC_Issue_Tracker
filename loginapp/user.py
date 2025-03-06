@@ -1,15 +1,15 @@
 from loginapp import app
 from loginapp import db
-from flask import redirect, render_template, request, session, url_for, flash, jsonify
+from flask import redirect, render_template, request, session, url_for, flash
 from flask_bcrypt import Bcrypt
-import MySQLdb.cursors
-import re
 import os
 from werkzeug.utils import secure_filename
+from loginapp.utils import save_profile_image, delete_profile_image
+from loginapp.decorators import login_required
 
 # Create an instance of the Bcrypt class, which we'll be using to hash user
 # passwords during login and registration.
-flask_bcrypt = Bcrypt(app)
+flask_bcrypt = Bcrypt()
 
 # Default role for new users
 DEFAULT_USER_ROLE = 'visitor'
@@ -198,6 +198,7 @@ def signup():
     return render_template('signup.html', errors={})
 
 @app.route('/profile', methods=['GET', 'POST'])
+@login_required
 def profile():
     """User Profile page endpoint."""
     if 'loggedin' not in session:
@@ -228,51 +229,42 @@ def profile():
                           form_data['last_name'], form_data['location'], 
                           session['user_id']))
 
-                    # Handle profile image
-                    if 'profile_image' in request.files:
-                        file = request.files['profile_image']
-                        if file and file.filename != '':
-                            try:
-                                filename = f"{session['username']}_image{os.path.splitext(file.filename)[1]}"
-                                filename = secure_filename(filename)
-                                file_path = os.path.join(UPLOAD_FOLDER, filename)
-                                file.save(file_path)
-                                cursor.execute('''
-                                    UPDATE users 
-                                    SET profile_image = %s 
-                                    WHERE user_id = %s
-                                ''', (filename, session['user_id']))
-                                # Update session
-                                session['profile_image'] = filename
-                            except Exception as e:
-                                flash('Failed to upload profile image', 'danger')
-                                return redirect(url_for('profile'))
-
-                    # Handle profile image removal
-                    if request.form.get('remove_profile_image') == 'true':
-                        # Get current profile image
-                        cursor.execute('SELECT profile_image FROM users WHERE user_id = %s',
-                                    (session['user_id'],))
-                        result = cursor.fetchone()
+                # Handle profile image upload
+                if 'profile_image' in request.files and request.files['profile_image'].filename:
+                    file = request.files['profile_image']
+                    if file and allowed_file(file.filename):
+                        # Delete old profile image if exists
+                        if session['profile_image']:
+                            delete_profile_image(session['profile_image'])
                         
-                        if result and result['profile_image']:
-                            # Delete file
-                            file_path = os.path.join(UPLOAD_FOLDER, result['profile_image'])
-                            if os.path.exists(file_path):
-                                os.remove(file_path)
-                            
-                            # Update database
-                            cursor.execute('''
-                                UPDATE users 
-                                SET profile_image = NULL 
-                                WHERE user_id = %s
-                            ''', (session['user_id'],))
-                            # Update session
-                            session['profile_image'] = None
-
+                        # Save new profile image
+                        filename = save_profile_image(file, session['username'])
+                        
+                        # Update database
+                        cursor.execute('UPDATE users SET profile_image = %s WHERE user_id = %s',
+                                     (filename, session['user_id']))
+                        db.get_db().commit()
+                        # Update session
+                        session['profile_image'] = filename
+                    else:
+                        errors['profile_image'] = 'Invalid file format'
+                
+                # Handle profile image removal
+                if request.form.get('remove_profile_image') == 'true' and session['profile_image']:
+                    # Delete profile image
+                    delete_profile_image(session['profile_image'])
+                    
+                    # Update database
+                    cursor.execute('UPDATE users SET profile_image = NULL WHERE user_id = %s',
+                                 (session['user_id'],))
                     db.get_db().commit()
-                    flash('Profile updated successfully', 'success')
-                    return redirect(url_for('profile'))
+                    
+                    # Update session
+                    session.pop('profile_image', None)
+
+                db.get_db().commit()
+                flash('Profile updated successfully', 'success')
+                return redirect(url_for('profile'))
             except Exception as e:
                 flash('Failed to update profile', 'danger')
                 return redirect(url_for('profile'))

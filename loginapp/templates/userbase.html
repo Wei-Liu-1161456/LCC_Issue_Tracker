@@ -94,15 +94,26 @@
 										<i class="bi bi-person-lines-fill"></i> My Issues
 									</a>
 								</li>
-								{% if session['role'] in ['helper', 'admin'] %}
 								<li><hr class="dropdown-divider"></li>
+								{% if session['role'] in ['helper', 'admin'] %}
 								<li>
 									<a class="dropdown-item" href="{{ url_for('list_issues') }}">
-										<i class="bi bi-list-ul"></i> All Issues
+										<i class="bi bi-list-ul"></i> Active Issues
 									</a>
 								</li>
 								<li>
 									<a class="dropdown-item" href="{{ url_for('list_issues', filter='resolved') }}">
+										<i class="bi bi-check-circle"></i> Resolved Issues
+									</a>
+								</li>
+								{% else %}
+								<li>
+									<a class="dropdown-item" href="{{ url_for('list_issues', filter='my_active') }}">
+										<i class="bi bi-list-ul"></i> Active Issues
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ url_for('list_issues', filter='my_resolved') }}">
 										<i class="bi bi-check-circle"></i> Resolved Issues
 									</a>
 								</li>

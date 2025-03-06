@@ -1,9 +1,16 @@
+"""
+Decorators module.
+
+This module provides custom decorators for route access control.
+"""
+
 from functools import wraps
 from flask import session, redirect, url_for, render_template
 from loginapp import app
 
 def login_required(f):
-    """Decorator to check if user is logged in.
+    """
+    Decorator to check if user is logged in.
     
     Args:
         f: The function to be decorated
@@ -19,7 +26,8 @@ def login_required(f):
     return decorated_function
 
 def admin_required(f):
-    """Decorator to check if user is an admin.
+    """
+    Decorator to check if user is an admin.
     
     Args:
         f: The function to be decorated
@@ -37,7 +45,8 @@ def admin_required(f):
     return decorated_function
 
 def helper_required(f):
-    """Decorator to check if user is a helper or admin.
+    """
+    Decorator to check if user is a helper or admin.
     
     Args:
         f: The function to be decorated
