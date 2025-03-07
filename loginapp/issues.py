@@ -9,8 +9,6 @@ from loginapp import app
 from loginapp import db
 from flask import redirect, render_template, request, session, url_for, flash
 from loginapp.decorators import login_required, helper_or_admin_required
-# import MySQLdb.cursors
-# from datetime import datetime
 
 @app.route('/issues/report', methods=['GET', 'POST'])
 @login_required

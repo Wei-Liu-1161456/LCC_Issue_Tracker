@@ -6,7 +6,7 @@ This module handles visitor-specific functionality including the visitor dashboa
 
 from loginapp import app
 from loginapp import db
-from flask import redirect, render_template, session, url_for
+from flask import render_template, session, url_for
 from loginapp.decorators import login_required
 
 @app.route('/visitor/home')

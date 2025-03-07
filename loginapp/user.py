@@ -23,18 +23,6 @@ DEFAULT_USER_ROLE = 'visitor'
 # At least 8 characters, must include uppercase, lowercase, and numbers
 PASSWORD_PATTERN = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'
 
-# Add these constants at the top of the file
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-UPLOAD_FOLDER = os.path.join('loginapp', 'static', 'uploads', 'profiles')
-DEFAULT_AVATAR = '300.jpeg'
-
-# Ensure upload directory exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
 
 @app.route('/')
 def root():
@@ -335,19 +323,33 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route('/change_password', methods=['POST'])
+@login_required
 def change_password():
-    if 'loggedin' not in session:
-        return jsonify({'success': False, 'error': 'Not logged in'}), 401
+    """
+    Change password endpoint.
+
+    Allows users to change their password.
+
+    Methods:
+    - post: Allows users to change their password.
+
+    Returns:
+    - json: A JSON object containing the success status and error message (if any).
+    """
+    # if 'loggedin' not in session:
+    #     return jsonify({'success': False, 'error': 'Not logged in'}), 401
 
     data = request.get_json()
     current_password = data.get('current_password')
     new_password = data.get('new_password')
 
+    # Get user data
     with db.get_cursor() as cursor:
         cursor.execute('SELECT password_hash FROM users WHERE user_id = %s', 
                       (session['user_id'],))
         user = cursor.fetchone()
 
+    # Check if current password is correct
     if not flask_bcrypt.check_password_hash(user['password_hash'], current_password):
         return jsonify({
             'success': False,
@@ -361,6 +363,7 @@ def change_password():
             'error': 'New password cannot be the same as current password'
         })
 
+    # Validate new password
     if not re.match(PASSWORD_PATTERN, new_password):
         return jsonify({
             'success': False,
@@ -378,114 +381,3 @@ def change_password():
     return jsonify({
         'success': True
     })
-
-@app.route('/upload_profile_image', methods=['POST'])
-def upload_profile_image():
-    """Handle profile image upload."""
-    if 'loggedin' not in session:
-        return jsonify({'success': False, 'error': 'Not logged in'}), 401
-
-    if 'profile_image' not in request.files:
-        return jsonify({'success': False, 'error': 'No file uploaded'})
-    
-    file = request.files['profile_image']
-    if file.filename == '':
-        return jsonify({'success': False, 'error': 'No file selected'})
-
-    if file:
-        # Create filename using username
-        filename = f"{session['username']}_image{os.path.splitext(file.filename)[1]}"
-        filename = secure_filename(filename)
-        
-        # Ensure upload directory exists
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        
-        # Save file
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
-        
-        # Update database
-        with db.get_cursor() as cursor:
-            cursor.execute('UPDATE users SET profile_image = %s WHERE user_id = %s',
-                         (filename, session['user_id']))
-            db.get_db().commit()
-        
-        return jsonify({'success': True, 'filename': filename})
-
-    return jsonify({'success': False, 'error': 'File upload failed'})
-
-@app.route('/delete_profile_image', methods=['POST'])
-def delete_profile_image():
-    """Delete user's profile image."""
-    if 'loggedin' not in session:
-        return jsonify({'success': False, 'error': 'Not logged in'}), 401
-
-    with db.get_cursor() as cursor:
-        # Get current profile image
-        cursor.execute('SELECT profile_image FROM users WHERE user_id = %s',
-                      (session['user_id'],))
-        result = cursor.fetchone()
-        
-        if result and result['profile_image']:
-            # Delete file if it exists
-            utils.delete_profile_image(result['profile_image'])
-            
-            # Update database
-            cursor.execute('UPDATE users SET profile_image = NULL WHERE user_id = %s',
-                         (session['user_id'],))
-            db.get_db().commit()
-
-    return jsonify({'success': True})
-
-@app.route('/update_profile', methods=['POST'])
-def update_profile():
-    """Update user profile endpoint."""
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
-
-    errors = {}
-    form_data = {
-        'email': request.form['email'],
-        'first_name': request.form['first_name'],
-        'last_name': request.form['last_name'],
-        'location': request.form['location']
-    }
-
-    # Validate email format
-    if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', form_data['email']):
-        errors['email'] = 'Please enter a valid email address'
-
-    # Validate required fields
-    if not form_data['first_name'].strip():
-        errors['first_name'] = 'First name is required'
-    if not form_data['last_name'].strip():
-        errors['last_name'] = 'Last name is required'
-    if not form_data['location'].strip():
-        errors['location'] = 'Location is required'
-
-    # Check if email is already taken by another user
-    with db.get_cursor() as cursor:
-        cursor.execute('SELECT user_id FROM users WHERE email = %s AND user_id != %s',
-                      (form_data['email'], session['user_id']))
-        if cursor.fetchone():
-            errors['email'] = 'This email is already registered'
-
-    if errors:
-        with db.get_cursor() as cursor:
-            cursor.execute('SELECT * FROM users WHERE user_id = %s', (session['user_id'],))
-            user = cursor.fetchone()
-        return render_template('profile.html', user=user, errors=errors)
-
-    # Update user profile
-    with db.get_cursor() as cursor:
-        cursor.execute('''
-            UPDATE users 
-            SET email = %s, first_name = %s, last_name = %s, location = %s 
-            WHERE user_id = %s
-        ''', (form_data['email'], form_data['first_name'], 
-              form_data['last_name'], form_data['location'], 
-              session['user_id']))
-        db.get_db().commit()
-
-    flash('Profile updated successfully!', 'success')
-    return redirect(url_for('profile'))

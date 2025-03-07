@@ -6,7 +6,7 @@ This module handles helper-specific functionality including the helper dashboard
 
 from loginapp import app
 from loginapp import db
-from flask import redirect, render_template, session
+from flask import render_template, session
 from loginapp.decorators import helper_required
 
 @app.route('/helper/home')
