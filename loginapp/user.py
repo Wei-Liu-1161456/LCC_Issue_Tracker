@@ -7,7 +7,6 @@ This module handles user authentication, registration, and profile management.
 from loginapp import app, db, utils
 from flask import redirect, render_template, request, session, url_for, flash, jsonify
 from flask_bcrypt import Bcrypt
-import MySQLdb.cursors
 import re
 import os
 from werkzeug.utils import secure_filename
@@ -35,27 +34,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def user_home_url():
-    """Generates a URL to the homepage for the currently logged-in user.
-    
-    If the user is not logged in, this returns the URL for the login page
-    instead. If the user appears to be logged in, but the role stored in their
-    session cookie is invalid (i.e. not a recognised role), it returns the URL
-    for the logout page to clear that invalid session data."""
-    if 'loggedin' in session:
-        role = session.get('role', None)
-        if role == 'visitor':
-            home_endpoint = 'visitor_home'
-        elif role == 'helper':
-            home_endpoint = 'helper_home'
-        elif role == 'admin':
-            home_endpoint = 'admin_home'
-        else:
-            home_endpoint = 'logout'
-    else:
-        home_endpoint = 'login'
-    
-    return url_for(home_endpoint)
+
 
 @app.route('/')
 def root():
@@ -65,7 +44,7 @@ def root():
     - get: Redirects guests to the login page, and redirects logged-in users to
         their own role-specific homepage.
     """
-    return redirect(user_home_url())
+    return redirect(utils.user_home_url())
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -82,7 +61,7 @@ def login():
     to their role-specific homepage.
     """
     if 'loggedin' in session:
-        return redirect(user_home_url())
+        return redirect(utils.user_home_url())
 
     if request.method == 'POST':
         username = request.form['username']
@@ -104,7 +83,7 @@ def login():
             session['first_name'] = user['first_name']
             session['profile_image'] = user['profile_image']
             
-            return redirect(user_home_url())
+            return redirect(utils.user_home_url())
         else:
             flash('Invalid username or password', 'danger')
             return render_template('login.html', username=username, error=True)

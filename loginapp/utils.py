@@ -11,22 +11,26 @@ from flask import session, url_for
 
 @app.template_global()
 def user_home_url():
-    """
-    Return the appropriate home URL based on user role.
+    """Generates a URL to the homepage for the currently logged-in user.
     
-    Returns:
-        str: URL for the user's home page based on their role
-    """
-    if 'role' not in session:
-        return url_for('login')
+    If the user is not logged in, this returns the URL for the login page
+    instead. If the user appears to be logged in, but the role stored in their
+    session cookie is invalid (i.e. not a recognised role), it returns the URL
+    for the logout page to clear that invalid session data."""
+    if 'loggedin' in session:
+        role = session.get('role', None)
+        if role == 'visitor':
+            home_endpoint = 'visitor_home'
+        elif role == 'helper':
+            home_endpoint = 'helper_home'
+        elif role == 'admin':
+            home_endpoint = 'admin_home'
+        else:
+            home_endpoint = 'logout'
+    else:
+        home_endpoint = 'login'
     
-    role = session['role']
-    if role == 'admin':
-        return url_for('admin_home')
-    elif role == 'helper':
-        return url_for('helper_home')
-    else:  # visitor
-        return url_for('visitor_home')
+    return url_for(home_endpoint)
 
 def save_profile_image(file, username):
     """
