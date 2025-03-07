@@ -114,7 +114,9 @@
                                                 }[issue.status] }}">{{ issue.status }}</span>
                                                 {% endif %}
                                             </td>
-                                            <td>{{ issue.summary }}</td>
+                                            <td class="text-truncate" style="max-width: 300px;" title="{{ issue.summary }}">
+                                                {{ issue.summary }}
+                                            </td>
                                             <td class="text-nowrap">
                                                 <img src="{{ url_for('static', filename='uploads/profiles/' + (issue.profile_image if issue.profile_image else '300.jpeg')) }}"
                                                      class="rounded-circle me-2" alt="Profile"

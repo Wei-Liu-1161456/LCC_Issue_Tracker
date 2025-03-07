@@ -1,6 +1,6 @@
 # LCC Issue Tracker Project Setup & Usage Guide
 
-A web-based issue tracking system for Lincoln Commutity Campground (LCC), built with Flask、MySQL and Responsive design using Bootstrap 5.
+A web-based issue tracking system for Lincoln Community Campground (LCC), built with Flask, MySQL and Responsive design using Bootstrap 5.
 
 ---
 # How to Set Up LCC Issue Tracker Project
@@ -50,37 +50,37 @@ Use the login page to log in, there are given data(Username and Password) in pas
 Format: UserAccount(username, password, role)
     
 # Administrators (2)
-UserAccount('admin1', 'Admin1Pass!', 'admin'),
-UserAccount('admin2', 'Admin2Pass!', 'admin')
+UserAccount('admin1', 'Admin1Pass', 'admin'),
+UserAccount('admin2', 'Admin2Pass', 'admin')
 
 # Helpers (5)
-UserAccount('helper1', 'Helper1Pass!', 'helper'),
-UserAccount('helper2', 'Helper2Pass!', 'helper'),
-UserAccount('helper3', 'Helper3Pass!', 'helper'),
-UserAccount('helper4', 'Helper4Pass!', 'helper'),
-UserAccount('helper5', 'Helper5Pass!', 'helper'),
+UserAccount('helper1', 'Helper1Pass', 'helper'),
+UserAccount('helper2', 'Helper2Pass', 'helper'),
+UserAccount('helper3', 'Helper3Pass', 'helper'),
+UserAccount('helper4', 'Helper4Pass', 'helper'),
+UserAccount('helper5', 'Helper5Pass', 'helper'),
 
  # Visitors (20)
-UserAccount('visitor1', 'Visitor1Pass!', 'visitor'),
-UserAccount('visitor2', 'Visitor2Pass!', 'visitor'),
-UserAccount('visitor3', 'Visitor3Pass!', 'visitor'),
-UserAccount('visitor4', 'Visitor4Pass!', 'visitor'),
-UserAccount('visitor5', 'Visitor5Pass!', 'visitor'),
-UserAccount('visitor6', 'Visitor6Pass!', 'visitor'),
-UserAccount('visitor7', 'Visitor7Pass!', 'visitor'),
-UserAccount('visitor8', 'Visitor8Pass!', 'visitor'),
-UserAccount('visitor9', 'Visitor9Pass!', 'visitor'),
-UserAccount('visitor10', 'Visitor10Pass!', 'visitor'),
-UserAccount('visitor11', 'Visitor11Pass!', 'visitor'),
-UserAccount('visitor12', 'Visitor12Pass!', 'visitor'),
-UserAccount('visitor13', 'Visitor13Pass!', 'visitor'),
-UserAccount('visitor14', 'Visitor14Pass!', 'visitor'),
-UserAccount('visitor15', 'Visitor15Pass!', 'visitor'),
-UserAccount('visitor16', 'Visitor16Pass!', 'visitor'),
-UserAccount('visitor17', 'Visitor17Pass!', 'visitor'),
-UserAccount('visitor18', 'Visitor18Pass!', 'visitor'),
-UserAccount('visitor19', 'Visitor19Pass!', 'visitor'),
-UserAccount('visitor20', 'Visitor20Pass!', 'visitor'),
+UserAccount('visitor1', 'Visitor1Pass', 'visitor'),
+UserAccount('visitor2', 'Visitor2Pass', 'visitor'),
+UserAccount('visitor3', 'Visitor3Pass', 'visitor'),
+UserAccount('visitor4', 'Visitor4Pass', 'visitor'),
+UserAccount('visitor5', 'Visitor5Pass', 'visitor'),
+UserAccount('visitor6', 'Visitor6Pass', 'visitor'),
+UserAccount('visitor7', 'Visitor7Pass', 'visitor'),
+UserAccount('visitor8', 'Visitor8Pass', 'visitor'),
+UserAccount('visitor9', 'Visitor9Pass', 'visitor'),
+UserAccount('visitor10', 'Visitor10Pass', 'visitor'),
+UserAccount('visitor11', 'Visitor11Pass', 'visitor'),
+UserAccount('visitor12', 'Visitor12Pass', 'visitor'),
+UserAccount('visitor13', 'Visitor13Pass', 'visitor'),
+UserAccount('visitor14', 'Visitor14Pass', 'visitor'),
+UserAccount('visitor15', 'Visitor15Pass', 'visitor'),
+UserAccount('visitor16', 'Visitor16Pass', 'visitor'),
+UserAccount('visitor17', 'Visitor17Pass', 'visitor'),
+UserAccount('visitor18', 'Visitor18Pass', 'visitor'),
+UserAccount('visitor19', 'Visitor19Pass', 'visitor'),
+UserAccount('visitor20', 'Visitor20Pass', 'visitor'),
 ```
 
 ## Sign up

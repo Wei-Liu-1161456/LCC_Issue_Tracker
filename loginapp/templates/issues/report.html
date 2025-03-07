@@ -22,12 +22,12 @@
                             <input type="text" class="form-control{% if errors.summary %} is-invalid{% endif %}" 
                                    id="summary" name="summary" 
                                    value="{{ form_data.summary if form_data }}"
-                                   placeholder="Brief description of the issue"
-                                   required maxlength="255">
+                                   placeholder="Brief summary of the issue"
+                                   required maxlength="40">
                             {% if errors.summary %}
                             <div class="invalid-feedback">{{ errors.summary }}</div>
                             {% endif %}
-                            <div class="form-text">A short, clear title for your issue</div>
+                            <div class="form-text">Maximum 40 characters</div>
                         </div>
 
                         <div class="mb-3">

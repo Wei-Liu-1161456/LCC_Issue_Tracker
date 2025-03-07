@@ -1,21 +1,4 @@
-{#
-	This is the base template for pages seen by a logged-in user, and provides
-	the top-level navigation menu.
 
-	Page templates based on this one should specify:
-		- A "title" block containing the page title (e.g. "User Profile")
-		- A "content" block containing the main HTML/Jinja content of the page.
-	
-	Each page should also set the "active_page" variable to control which top-
-	level menu item is highlighted as active (e.g. a homepage template based on
-	this one should include the line):
-		{% set active_page = 'home' %}
-	
-	Currently, the only available options are 'home' and 'profile'. You could
-	choose to continue with this same approach as you add other menu options,
-	using these two as an example, or find your own way to control which menu
-	item is shown as "active".
-#}
 <!doctype html>
 <html lang="en">
 	<head>

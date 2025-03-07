@@ -8,7 +8,7 @@ listing, viewing, commenting, and status updates.
 from loginapp import app
 from loginapp import db
 from flask import redirect, render_template, request, session, url_for, flash
-from loginapp.decorators import login_required, helper_required
+from loginapp.decorators import login_required, helper_or_admin_required
 # import MySQLdb.cursors
 # from datetime import datetime
 
@@ -238,7 +238,7 @@ def add_comment(issue_id):
 
 @app.route('/issues/<int:issue_id>/status', methods=['POST'])
 @login_required
-@helper_required
+@helper_or_admin_required
 def update_issue_status(issue_id):
     """
     Update issue status endpoint.

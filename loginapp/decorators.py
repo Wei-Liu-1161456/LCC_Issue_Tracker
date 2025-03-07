@@ -46,6 +46,19 @@ def admin_required(f):
 
 def helper_required(f):
     """
+    Decorator to check if user is a helper.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'loggedin' not in session:
+            return redirect(url_for('login'))
+        if session['role'] != 'helper':
+            return render_template('access_denied.html'), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
+def helper_or_admin_required(f):
+    """
     Decorator to check if user is a helper or admin.
     
     Args:
