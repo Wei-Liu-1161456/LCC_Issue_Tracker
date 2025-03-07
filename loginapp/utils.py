@@ -39,14 +39,18 @@ def save_profile_image(file, username):
     Returns:
         str: The filename of the saved image
     """
+    # Define upload folder for profile images
+    UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads/profiles')
+    
+    # Create filename
     filename = f"{username}_image{os.path.splitext(file.filename)[1]}"
     filename = secure_filename(filename)
     
     # Ensure upload directory exists
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     
     # Save file
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(file_path)
     
     return filename
@@ -63,9 +67,25 @@ def delete_profile_image(filename):
     """
     if not filename:
         return False
-        
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    
+    # Define upload folder for profile images
+    UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads/profiles')
+    
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
     if os.path.exists(file_path):
         os.remove(file_path)
         return True
-    return False 
+    return False
+
+def allowed_file(filename):
+    """
+    Check if a file has an allowed extension for profile images.
+    
+    Args:
+        filename: The filename to check
+        
+    Returns:
+        bool: True if the file extension is allowed, False otherwise
+    """
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS 

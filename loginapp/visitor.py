@@ -20,7 +20,7 @@ def visitor_home():
     Returns:
         Rendered visitor home template with user data
     """
-    # 检查用户是否已登录
+    # Check if user is a visitor
     if session['role'] != 'visitor':
         return render_template('access_denied.html'), 403
         

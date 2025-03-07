@@ -1,20 +1,18 @@
--- Drop the database if it exists
-DROP DATABASE IF EXISTS `LCC`;
-
-
--- Create the database if it doesn't exist
-CREATE DATABASE IF NOT EXISTS `LCC`
-    CHARACTER SET utf8mb4 
-    COLLATE utf8mb4_bin; -- use utf8mb4_bin for clarify upcase and lowercase.
-
 -- Use the datebase
 USE LCC;
 
--- Drop table if it exists before creating
-DROP TABLE IF EXISTS `users`;
-DROP TABLE IF EXISTS `issues`;
-DROP TABLE IF EXISTS `comments`;
+-- Disable foreign key checks
+SET FOREIGN_KEY_CHECKS = 0;
 
+-- Drop tables if they exist
+DROP TABLE IF EXISTS `comments`;
+DROP TABLE IF EXISTS `issues`;
+DROP TABLE IF EXISTS `users`;
+
+-- Enable foreign key checks   
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- Create users table
 CREATE TABLE `users`(
     `user_id` INT NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(20) NOT NULL,
@@ -28,9 +26,9 @@ CREATE TABLE `users`(
 	`status` ENUM('active', 'inactive') NOT NULL,
     PRIMARY KEY (`user_id`),
     UNIQUE KEY `username` (`username`)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
-
+-- Create issues table
 CREATE TABLE `issues` (
     `issue_id` INT NOT NULL AUTO_INCREMENT,
     `user_id` INT NOT NULL,
@@ -40,9 +38,9 @@ CREATE TABLE `issues` (
     `status` ENUM('new', 'open', 'stalled', 'resolved') NOT NULL DEFAULT 'new',
     PRIMARY KEY (`issue_id`),
     FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
-
+-- Create comments table
 CREATE TABLE `comments` (
   `comment_id` INT NOT NULL AUTO_INCREMENT,
   `issue_id` INT NOT NULL,
@@ -52,4 +50,4 @@ CREATE TABLE `comments` (
   PRIMARY KEY (`comment_id`),
   FOREIGN KEY (`issue_id`) REFERENCES `issues`(`issue_id`) ON DELETE CASCADE,
   FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;

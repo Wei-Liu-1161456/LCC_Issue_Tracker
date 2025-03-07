@@ -1,15 +1,21 @@
-from loginapp import app
-from loginapp import db
-from flask import redirect, render_template, request, session, url_for, flash
+"""
+User module.
+
+This module handles user authentication, registration, and profile management.
+"""
+
+from loginapp import app, db, utils
+from flask import redirect, render_template, request, session, url_for, flash, jsonify
 from flask_bcrypt import Bcrypt
+import MySQLdb.cursors
+import re
 import os
 from werkzeug.utils import secure_filename
-from loginapp.utils import save_profile_image, delete_profile_image
 from loginapp.decorators import login_required
 
 # Create an instance of the Bcrypt class, which we'll be using to hash user
 # passwords during login and registration.
-flask_bcrypt = Bcrypt()
+flask_bcrypt = Bcrypt(app)
 
 # Default role for new users
 DEFAULT_USER_ROLE = 'visitor'
@@ -200,86 +206,141 @@ def signup():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    """User Profile page endpoint."""
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
-
-    # Initialize empty errors dict
-    errors = {}
-
+    """
+    User Profile page endpoint.
+    
+    Allows users to view and update their profile information.
+    
+    Returns:
+        On GET: Rendered profile template with user data
+        On POST success: Redirect to profile page with success message
+        On POST error: Rendered profile template with validation errors
+    """
+    # Get current user data
+    with db.get_cursor() as cursor:
+        cursor.execute('SELECT * FROM users WHERE user_id = %s', (session['user_id'],))
+        user = cursor.fetchone()
+    
+    # Handle form submission
     if request.method == 'POST':
+        # Get form data
         form_data = {
-            'email': request.form['email'],
-            'first_name': request.form['first_name'],
-            'last_name': request.form['last_name'],
-            'location': request.form['location']
+            'first_name': request.form.get('first_name', '').strip(),
+            'last_name': request.form.get('last_name', '').strip(),
+            'email': request.form.get('email', '').strip(),
+            'current_password': request.form.get('current_password', ''),
+            'new_password': request.form.get('new_password', ''),
+            'confirm_password': request.form.get('confirm_password', '')
         }
-
-        # Validate form data...
+        
+        # Validate input
+        errors = {}
+        if not form_data['first_name']:
+            errors['first_name'] = 'First name is required'
+        if not form_data['last_name']:
+            errors['last_name'] = 'Last name is required'
+        if not form_data['email']:
+            errors['email'] = 'Email is required'
+        elif not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', form_data['email']):
+            errors['email'] = 'Invalid email format'
+            
+        # Check if email is already in use by another user
+        if form_data['email'] != user['email']:
+            with db.get_cursor() as cursor:
+                cursor.execute('SELECT * FROM users WHERE email = %s AND user_id != %s', 
+                             (form_data['email'], session['user_id']))
+                if cursor.fetchone():
+                    errors['email'] = 'Email is already in use'
+        
+        # Validate password change if requested
+        if form_data['new_password']:
+            if not form_data['current_password']:
+                errors['current_password'] = 'Current password is required to set a new password'
+            elif not flask_bcrypt.check_password_hash(user['password'], form_data['current_password']):
+                errors['current_password'] = 'Current password is incorrect'
+            
+            if len(form_data['new_password']) < 8:
+                errors['new_password'] = 'Password must be at least 8 characters long'
+            elif not re.search(r'[A-Z]', form_data['new_password']):
+                errors['new_password'] = 'Password must contain at least one uppercase letter'
+            elif not re.search(r'[a-z]', form_data['new_password']):
+                errors['new_password'] = 'Password must contain at least one lowercase letter'
+            elif not re.search(r'[0-9!@#$%^&*(),.?":{}|<>]', form_data['new_password']):
+                errors['new_password'] = 'Password must contain at least one number or special character'
+            
+            if form_data['new_password'] != form_data['confirm_password']:
+                errors['confirm_password'] = 'Passwords do not match'
+        
         if not errors:
-            try:
-                with db.get_cursor() as cursor:
-                    # Update user data
+            with db.get_cursor() as cursor:
+                # Update basic info
+                cursor.execute('''
+                    UPDATE users 
+                    SET first_name = %s, last_name = %s, email = %s
+                    WHERE user_id = %s
+                ''', (form_data['first_name'], form_data['last_name'], 
+                      form_data['email'], session['user_id']))
+                
+                # Update password if provided
+                if form_data['new_password']:
+                    hashed_password = flask_bcrypt.generate_password_hash(form_data['new_password']).decode('utf-8')
                     cursor.execute('''
                         UPDATE users 
-                        SET email = %s, first_name = %s, last_name = %s, 
-                            location = %s
+                        SET password = %s 
                         WHERE user_id = %s
-                    ''', (form_data['email'], form_data['first_name'], 
-                          form_data['last_name'], form_data['location'], 
-                          session['user_id']))
-
+                    ''', (hashed_password, session['user_id']))
+                
                 # Handle profile image upload
                 if 'profile_image' in request.files and request.files['profile_image'].filename:
                     file = request.files['profile_image']
-                    if file and allowed_file(file.filename):
+                    if file and utils.allowed_file(file.filename):
                         # Delete old profile image if exists
-                        if session['profile_image']:
-                            delete_profile_image(session['profile_image'])
+                        if user['profile_image']:
+                            utils.delete_profile_image(user['profile_image'])
                         
                         # Save new profile image
-                        filename = save_profile_image(file, session['username'])
+                        filename = utils.save_profile_image(file, session['username'])
                         
                         # Update database
-                        cursor.execute('UPDATE users SET profile_image = %s WHERE user_id = %s',
-                                     (filename, session['user_id']))
-                        db.get_db().commit()
+                        cursor.execute('''
+                            UPDATE users 
+                            SET profile_image = %s 
+                            WHERE user_id = %s
+                        ''', (filename, session['user_id']))
+                        
                         # Update session
                         session['profile_image'] = filename
                     else:
                         errors['profile_image'] = 'Invalid file format'
                 
                 # Handle profile image removal
-                if request.form.get('remove_profile_image') == 'true' and session['profile_image']:
-                    # Delete profile image
-                    delete_profile_image(session['profile_image'])
+                if request.form.get('remove_profile_image') == 'true' and user['profile_image']:
+                    # Delete file
+                    utils.delete_profile_image(user['profile_image'])
                     
                     # Update database
-                    cursor.execute('UPDATE users SET profile_image = NULL WHERE user_id = %s',
-                                 (session['user_id'],))
-                    db.get_db().commit()
+                    cursor.execute('''
+                        UPDATE users 
+                        SET profile_image = NULL 
+                        WHERE user_id = %s
+                    ''', (session['user_id'],))
                     
                     # Update session
-                    session.pop('profile_image', None)
-
+                    session['profile_image'] = None
+                
                 db.get_db().commit()
+                
+                # Update session data
+                session['first_name'] = form_data['first_name']
+                session['last_name'] = form_data['last_name']
+                
                 flash('Profile updated successfully', 'success')
                 return redirect(url_for('profile'))
-            except Exception as e:
-                flash('Failed to update profile', 'danger')
-                return redirect(url_for('profile'))
-        else:
-            for field, error in errors.items():
-                flash(f'{error}', 'danger')
-
-    # Get current user data
-    with db.get_cursor() as cursor:
-        cursor.execute('SELECT * FROM users WHERE user_id = %s', 
-                      (session['user_id'],))
-        user = cursor.fetchone()
-
-    # Always pass errors dict to template, even if empty
-    return render_template('profile.html', user=user, errors=errors)
+        
+        return render_template('profile.html', user=user, errors=errors, form_data=form_data)
+    
+    # GET request - show profile form
+    return render_template('profile.html', user=user, errors={}, form_data={})
 
 @app.route('/logout')
 def logout():
@@ -289,11 +350,7 @@ def logout():
     - get: Logs the current user out (if they were logged in to begin with),
         and redirects them to the login page.
     """
-    # Note that nothing actually happens on the server when a user logs out: we
-    # just remove the cookie from their web browser. They could technically log
-    # back in by manually restoring the cookie we've just deleted. In a high-
-    # security web app, you may need additional protections against this (e.g.
-    # keeping a record of active sessions on the server side).
+   
     session.clear()
     
     return redirect(url_for('login'))
@@ -392,9 +449,7 @@ def delete_profile_image():
         
         if result and result['profile_image']:
             # Delete file if it exists
-            file_path = os.path.join(UPLOAD_FOLDER, result['profile_image'])
-            if os.path.exists(file_path):
-                os.remove(file_path)
+            utils.delete_profile_image(result['profile_image'])
             
             # Update database
             cursor.execute('UPDATE users SET profile_image = NULL WHERE user_id = %s',
