@@ -1,6 +1,3 @@
--- Use the datebase
-USE LCC;
-
 -- Disable foreign key checks
 SET FOREIGN_KEY_CHECKS = 0;
 
