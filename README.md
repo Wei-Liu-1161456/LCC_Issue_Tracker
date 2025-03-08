@@ -15,7 +15,7 @@ A web-based issue tracking system for Lincoln Community Campground (LCC), built 
 1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/LCC-Issue-Tracker.git
-cd LCC-Issue-Tracker/loginapp
+cd LCC-Issue-Tracker
 ```
 
 2. Create and activate a virtual environment:
@@ -31,9 +31,14 @@ pip install -r requirements.txt
 ```
 
 4. Set up the MySQL database:
+- **First**, ensure you have created a database named LCC in your MySQL server. You can do this by running the following command in your MySQL shell:
+```sql
+CREATE DATABASE LCC;
+```
+- **Then**, run the following commands to create the database schema and populate it:
 ```bash
 mysql -u root -p < create_database.sql # Create the Database Schema 
-mysql -u root -p < seed.sql # Populate the Database
+mysql -u root -p < populate_database.sql # Populate the Database
 ```
 
 5. Run the application:
@@ -45,7 +50,7 @@ python3 run.py
 # How to use LCC Issue Tracker Website
 
 ## Login
-Use the login page to log in, there are given data(Username and Password) in password_hash_generator.py to login, such as:
+Use the **login page** to log in. Default usernames and passwords are provided, and you can also find them in **password_hash_generator.py**. The credentials are as follows:
 ```sql
 Format: UserAccount(username, password, role)
     
@@ -84,52 +89,62 @@ UserAccount('visitor20', 'Visitor20Pass', 'visitor'),
 ```
 
 ## Sign up
-Click the Sign up button on the Login page to create your own account, your account will be a visitor for this issue tracker system.
+Click the **Sign Up button** on the **Login page** to create your own account. Newly registered accounts will have the **visitor** role by default..
 
 ## Navigation Bar - Home button
 
-click the Home button to show the user Dashboard 
+click the **Home button** to show the users Dashboard 
 
-**Admin user dashboard**
-1 - "View Active Issues" button
-Click it to view the list of those issues that aren't resolved yet.
-2 - "View Resolved Issues" button
-Click it to view the list of those issues that have been resolved.
-3 - "Manage Users" button
-Click it to view the list of those issues that have been resolved. and then you can search users by username/fname/lname, can change the role(admin/helper/visitor) and the status(inactive and active) of the usrs, can view the users profile.
-4 - "Report New Issue"
-Click it to create a new issue.
+### 1. Admin user dashboard
+- **View Active Issues button**
+Click to view the list of those issues that aren't resolved yet.
+- **View Resolved Issues button**
+Click to view the list of those issues that have been resolved.
+- **Manage Users button**
+Click to view the list of those issues that have been resolved. and then you can search users by username/fname/lname, can change the role(admin/helper/visitor) and the status(inactive and active) of the users, can view the users profile.
+- **Report New Issue button**
+Click to create a new issue.
 
-**2. Helper user dashboard**
-1 - "View Active Issues" button
-Click it to view the list of those issues that aren't resolved yet.
-2 - "View Resolved Issues" button
-Click it to view the list of those issues that have been resolved.
-3 - "Report New Issue"
-Click it to create a new issue.
+### 2. Helper user dashboard
+- **View Active Issues button**
+Click to view the list of those issues that aren't resolved yet.
+- **View Resolved Issue button**
+Click to view the list of those issues that have been resolved.
+- **Report New Issue**
+Click  to create a new issue.
 
-**3. Visitor user dashboard**
-
+### 3. Visitor user dashboard
+- **Report New Issue button**
+Click to create a new issue.
+- **My Issues button**
+Click to view the list of all issues reported by the user, including active and resolved ones.
 
 
 ## Navigation Bar - Issues button
 
-**1.Admin user**
+There is a dropdown menu including four buttons, as follows:
 
-**2.Helper user**
-**3.visitor user**
+- **Report New Issue**
+Click to create a new issue.
+- **My Issues**
+Click to view the list of all issues reported by the user, including active and resolved ones.
+
+- **Active Issues**
+Click to view the list of those unresolved issues reported by all users.
+But, visitor role can only view the issues reported by themselves.
+- **Resolved Issues**
+Click to view the list of those resolved issues reported by users.
+But, visitor role can only view the issues reported by themselves.
 
 ## Navigation Bar - Manage Users button
 
 **Only Visible to Admin User:**
-Click it to view the list of those issues that have been resolved. and then you can search users by username/fname/lname, can change the role(admin/helper/visitor) and the status(inactive and active) of the usrs, can view the users profile.
+Click to view the list of all users, and then you can search users by username/fname/lname, can change the role(admin/helper/visitor) and the status(inactive and active) of the usrs, can view the users profile.
 
 ## Navigation Bar - User Avatar and First Name
 
-**Used for ALL Roles (Admin/Helper/Visitor):**
 Click this button to show yours Profile details, and you can change your details and password in the "My profile" page.
 
 ## Navigation Bar - Log out
 
-**Used for ALL Roles (Admin/Helper/Visitor):**
 Click this button to log out your account from the LCC Issue Tracker system.
