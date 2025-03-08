@@ -123,10 +123,11 @@
                                                 }[issue.status] }}">{{ issue.status }}</span>
                                                 {% endif %}
                                             </td>
-                                            <td class="text-truncate" style="max-width: 150px;" title="{{ issue.summary }}">
+                                            <td class="text-truncate" style="max-width: 80px;" title="{{ issue.summary }}">
                                                 {{ issue.summary }}
                                             </td>
-                                            <td class="text-nowrap">
+                                            <td class="text-nowrap" style="max-width: 50px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;" 
+                                            title="{{ issue.first_name }} {{ issue.last_name }}">
                                                 <img src="{{ url_for('static', filename='uploads/profiles/' + (issue.profile_image if issue.profile_image else '300.jpeg')) }}"
                                                      class="rounded-circle me-2" alt="Profile"
                                                      style="width: 24px; height: 24px; object-fit: cover;">
