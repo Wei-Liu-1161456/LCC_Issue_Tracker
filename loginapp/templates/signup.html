@@ -22,7 +22,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control{% if errors.email %} is-invalid{% endif %}" id="email" name="email" value="{{ email if email }}" required>
+                                <input type="email" class="form-control{% if errors.email %} is-invalid{% endif %}" id="email" name="email" value="{{ email if email }}" required maxlength="20">
                                 {% if errors.email %}
                                 <div class="invalid-feedback">{{ errors.email }}</div>
                                 {% endif %}
@@ -32,7 +32,7 @@
                             <label for="password" class="form-label">Password</label>
                             <div class="input-group">
                                 <input type="password" class="form-control{% if errors.password %} is-invalid{% endif %}" 
-                                       id="password" name="password" required>
+                                       id="password" name="password" required maxlength="20">
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                     <i class="bi bi-eye"></i>
                                 </button>
@@ -48,7 +48,7 @@
                             <label for="confirm_password" class="form-label">Confirm Password</label>
                             <div class="input-group">
                                 <input type="password" class="form-control{% if errors.confirm_password %} is-invalid{% endif %}" 
-                                       id="confirm_password" name="confirm_password" required>
+                                       id="confirm_password" name="confirm_password" required maxlength="20">
                                 <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
                                     <i class="bi bi-eye"></i>
                                 </button>
@@ -60,14 +60,14 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="first_name" class="form-label">First Name</label>
-                                <input type="text" class="form-control{% if errors.first_name %} is-invalid{% endif %}" id="first_name" name="first_name" value="{{ first_name if first_name }}" required maxlength="50">
+                                <input type="text" class="form-control{% if errors.first_name %} is-invalid{% endif %}" id="first_name" name="first_name" value="{{ first_name if first_name }}" required maxlength="20">
                                 {% if errors.first_name %}
                                 <div class="invalid-feedback">{{ errors.first_name }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="last_name" class="form-label">Last Name</label>
-                                <input type="text" class="form-control{% if errors.last_name %} is-invalid{% endif %}" id="last_name" name="last_name" value="{{ last_name if last_name }}" required maxlength="50">
+                                <input type="text" class="form-control{% if errors.last_name %} is-invalid{% endif %}" id="last_name" name="last_name" value="{{ last_name if last_name }}" required maxlength="20">
                                 {% if errors.last_name %}
                                 <div class="invalid-feedback">{{ errors.last_name }}</div>
                                 {% endif %}

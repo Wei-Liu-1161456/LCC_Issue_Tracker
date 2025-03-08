@@ -34,6 +34,7 @@ pip install -r requirements.txt
 - **First**, ensure you have created a database named LCC in your MySQL server. You can do this by running the following command in your MySQL shell:
 ```sql
 CREATE DATABASE LCC;
+USE LCC;
 ```
 - **Then**, run the following commands to create the database schema and populate it:
 ```bash
