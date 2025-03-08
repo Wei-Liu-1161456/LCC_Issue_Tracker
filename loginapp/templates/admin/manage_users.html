@@ -37,7 +37,7 @@
                         <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
-                                    <th>User</th>
+                                    <th>Full Name (Username)</th>
                                     <th>Role</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -46,7 +46,8 @@
                             <tbody>
                                 {% for user in users %}
                                 <tr>
-                                    <td class="text-nowrap">
+                                    <td class="text-nowrap" style="max-width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;" 
+                                    title="{{ user.first_name }} {{ user.last_name }} ({{ user.username }})">
                                         <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_image if user.profile_image else '300.jpeg')) }}"
                                              class="rounded-circle me-2" alt="Profile"
                                              style="width: 32px; height: 32px; object-fit: cover;">
