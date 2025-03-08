@@ -367,7 +367,7 @@ def change_password():
     if not re.match(PASSWORD_PATTERN, new_password):
         return jsonify({
             'success': False,
-            'error': 'Password must be at least 8 characters and include uppercase, lowercase, and numbers'
+            'error': 'Password must be 8-20 characters and include uppercase, lowercase, and numbers'
         })
 
     # Update password
