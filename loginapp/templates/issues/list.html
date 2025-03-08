@@ -67,42 +67,51 @@
                                     <tbody>
                                         {% for issue in (active_issues if active_issues is defined else issues) %}
                                         <tr>
+                                            <!-- Dropdown menu for status -->
                                             <td>
                                                 {% if session['role'] in ['helper', 'admin'] %}
-                                                <div class="dropdown d-inline-block">
+                                                <div class="dropdown d-inline-block position-static">
                                                     <button class="badge rounded-pill dropdown-toggle border-0 bg-{{ {
                                                         'new': 'primary',
                                                         'open': 'success',
                                                         'stalled': 'warning',
                                                         'resolved': 'secondary'
-                                                    }[issue.status] }}" type="button" data-bs-toggle="dropdown">
+                                                    }[issue.status] }}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                         {{ issue.status }}
                                                     </button>
-                                                    <ul class="dropdown-menu">
+                                                    <ul class="dropdown-menu shadow">
+                                                        {% if issue.status != 'new' %}
                                                         <li>
                                                             <form method="post" action="{{ url_for('update_issue_status', issue_id=issue.issue_id) }}">
                                                                 <input type="hidden" name="status" value="new">
-                                                                <button type="submit" class="dropdown-item">Set as New</button>
+                                                                <button type="submit" class="dropdown-item">New</button>
                                                             </form>
                                                         </li>
+                                                        {% endif %}
+                                                        {% if issue.status != 'open' %}
                                                         <li>
                                                             <form method="post" action="{{ url_for('update_issue_status', issue_id=issue.issue_id) }}">
                                                                 <input type="hidden" name="status" value="open">
-                                                                <button type="submit" class="dropdown-item">Set as Open</button>
+                                                                <button type="submit" class="dropdown-item">Open</button>
                                                             </form>
                                                         </li>
+                                                        {% endif %}
+                                                        {% if issue.status != 'stalled' %}
                                                         <li>
                                                             <form method="post" action="{{ url_for('update_issue_status', issue_id=issue.issue_id) }}">
                                                                 <input type="hidden" name="status" value="stalled">
-                                                                <button type="submit" class="dropdown-item">Set as Stalled</button>
+                                                                <button type="submit" class="dropdown-item">Stalled</button>
                                                             </form>
                                                         </li>
+                                                        {% endif %}
+                                                        {% if issue.status != 'resolved' %}
                                                         <li>
                                                             <form method="post" action="{{ url_for('update_issue_status', issue_id=issue.issue_id) }}">
                                                                 <input type="hidden" name="status" value="resolved">
-                                                                <button type="submit" class="dropdown-item">Set as Resolved</button>
+                                                                <button type="submit" class="dropdown-item">Resolved</button>
                                                             </form>
                                                         </li>
+                                                        {% endif %}
                                                     </ul>
                                                 </div>
                                                 {% else %}

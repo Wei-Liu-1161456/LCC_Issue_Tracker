@@ -6,7 +6,6 @@ This module provides custom decorators for route access control.
 
 from functools import wraps
 from flask import session, redirect, url_for, render_template
-from loginapp import app
 
 def login_required(f):
     """
